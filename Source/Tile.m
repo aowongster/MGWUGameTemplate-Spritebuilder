@@ -10,6 +10,7 @@
 
 
 @implementation Tile {
+    
     CCSprite *_tileNode;
 }
 
