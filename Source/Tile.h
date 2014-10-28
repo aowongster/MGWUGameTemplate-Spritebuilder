@@ -12,6 +12,8 @@
 @interface Tile : CCSprite {
 
 }
+@property (nonatomic, assign) BOOL isActive;
+
 - (id)initTile;
 
 

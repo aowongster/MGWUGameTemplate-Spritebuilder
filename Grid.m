@@ -20,7 +20,7 @@
 	NSNull *_noTile;
 }
 static const NSInteger GRID_SIZE = 6;
-static const CGFloat  spriteScale = .5f;
+
 
 static const NSInteger START_TILES = 2;
 
@@ -28,9 +28,9 @@ static const NSInteger START_TILES = 2;
 - (void)setupBackground
 {
 	// load one tile to read the dimensions
-	CCNode *tile = [CCBReader load:@"Tile"];
+	CCNode *tile = [CCBReader load:@"backgroundTile"];
     
-    // these guys are fixed
+    // these guys are fixed, reports 0 // hard code not scalable
 	_columnWidth = tile.contentSize.width;
 	_columnHeight = tile.contentSize.height;
     
@@ -44,22 +44,20 @@ static const NSInteger START_TILES = 2;
 	float x = _tileMarginHorizontal;
 	float y = _tileMarginVertical;
     
+    
+    _gridArray = [NSMutableArray array];
+    // grid is off for calculation
 	for (int i = 0; i < GRID_SIZE; i++) {
 		// iterate through each row
 		x = _tileMarginHorizontal;
+        _gridArray[i] = [NSMutableArray array];
 		for (int j = 0; j < GRID_SIZE; j++) {
 			//  iterate through each column in the current row
             
             // add sprite.
             // add in a tile?
             Tile *tile = [[Tile alloc] initTile];
-            
-			CCSprite *spriteTile = [CCSprite spriteWithImageNamed:@"stones/blue1.png"];
-            [spriteTile setScale:spriteScale];
-			spriteTile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
-            [spriteTile setAnchorPoint:ccp(0,0)];
-			spriteTile.position = ccp(x, y);
-            
+            tile.position = ccp(x, y);
             
             // add grid
             CCNodeColor *backgroundTile = [CCNodeColor nodeWithColor:[CCColor brownColor]];
@@ -68,8 +66,12 @@ static const NSInteger START_TILES = 2;
            
 			
             
-			[self addChild:backgroundTile];
-            //[self addChild:spriteTile];
+			[self addChild:backgroundTile]; // color node
+            [self addChild:tile]; // tile class
+            _gridArray[i][j] = tile;
+            
+            
+
 			x+= _columnWidth + _tileMarginHorizontal;
 		}
 		y += _columnHeight + _tileMarginVertical;
@@ -82,18 +84,21 @@ static const NSInteger START_TILES = 2;
    
 }
 -(void) touchBegan:(UITouch *)touch withEvent:(UIEvent *)event {
-    NSLog(@"screen touched");
+    
     
     //get the x,y coordinates of the touch
     CGPoint touchLocation = [touch locationInNode:self];
-    
+    NSLog(@"%f %f", touchLocation.x, touchLocation.y);
     //get the Creature at that location
     Tile *tile = [self tileForTouchPosition:touchLocation];
+    tile.isActive = !tile.isActive;
 }
 
 -(Tile*) tileForTouchPosition: (CGPoint)touchPosition {
     int row = touchPosition.y/ _columnHeight;
     int column = touchPosition.x/ _columnWidth;
+    
+    NSLog(@"%d %d", row, column);
     
     return _gridArray[row][column];
 }
