@@ -38,7 +38,7 @@
 		B77F1B4217B978D7009739AE /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B77F1B4117B978D7009739AE /* CoreText.framework */; };
 		F30FD48719FF553400560A50 /* Gameplay.m in Sources */ = {isa = PBXBuildFile; fileRef = F30FD48619FF553400560A50 /* Gameplay.m */; };
 		F30FD48B19FF594C00560A50 /* Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = F30FD48A19FF594C00560A50 /* Grid.m */; };
-		F30FD48E19FF596600560A50 /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = F30FD48D19FF596600560A50 /* Tile.m */; };
+		F30FD49419FF678400560A50 /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = F30FD49319FF678400560A50 /* Tile.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,8 +97,8 @@
 		F30FD48619FF553400560A50 /* Gameplay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Gameplay.m; path = Source/Gameplay.m; sourceTree = "<group>"; };
 		F30FD48919FF594C00560A50 /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
 		F30FD48A19FF594C00560A50 /* Grid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Grid.m; sourceTree = "<group>"; };
-		F30FD48C19FF596600560A50 /* Tile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tile.h; path = Source/Tile.h; sourceTree = "<group>"; };
-		F30FD48D19FF596600560A50 /* Tile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Tile.m; path = Source/Tile.m; sourceTree = "<group>"; };
+		F30FD49219FF678400560A50 /* Tile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tile.h; path = Source/Tile.h; sourceTree = "<group>"; };
+		F30FD49319FF678400560A50 /* Tile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Tile.m; path = Source/Tile.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,10 +140,10 @@
 				B7378993180767190076A88C /* MainScene.m */,
 				F30FD48519FF553400560A50 /* Gameplay.h */,
 				F30FD48619FF553400560A50 /* Gameplay.m */,
+				F30FD49219FF678400560A50 /* Tile.h */,
+				F30FD49319FF678400560A50 /* Tile.m */,
 				F30FD48919FF594C00560A50 /* Grid.h */,
 				F30FD48A19FF594C00560A50 /* Grid.m */,
-				F30FD48C19FF596600560A50 /* Tile.h */,
-				F30FD48D19FF596600560A50 /* Tile.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -356,7 +356,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F30FD48B19FF594C00560A50 /* Grid.m in Sources */,
-				F30FD48E19FF596600560A50 /* Tile.m in Sources */,
+				F30FD49419FF678400560A50 /* Tile.m in Sources */,
 				B737893F1807617C0076A88C /* AppDelegate.m in Sources */,
 				F30FD48719FF553400560A50 /* Gameplay.m in Sources */,
 				B7378994180767190076A88C /* MainScene.m in Sources */,

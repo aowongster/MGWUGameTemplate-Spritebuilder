@@ -9,8 +9,11 @@
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
 
-@interface Tile : CCNode {
-    
+@interface Tile : CCSprite {
+
 }
+- (id)initTile;
+
+
 
 @end

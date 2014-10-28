@@ -9,9 +9,20 @@
 #import "Tile.h"
 
 
-@implementation Tile {
+@implementation Tile{
     
-    CCSprite *_tileNode;
+}
+
+- (instancetype)initTile{
+    // since we made Creature inherit from CCSprite, 'super' below refers to CCSprite
+    // init with random image?
+    self = [super init];
+    
+    if (self) {
+        
+    }
+    
+    return self;
 }
 
 @end

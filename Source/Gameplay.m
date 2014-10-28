@@ -8,10 +8,16 @@
 
 #import "Gameplay.h"
 #import "Grid.h"
+#import "Tile.h"
 
 
 @implementation Gameplay {
     Grid *_grid;
 }
+
+-(void)didLoadFromCCB{
+ 
+}
+
 
 @end
