@@ -120,11 +120,12 @@ static const NSInteger START_TILES = 2;
 }
 
 // given column index, what is next available row slot
+// my columns and rows are all screwy
 -(int)nextAvailableRow:(int)columnIdx{
     for(int i = 0; i < GRID_SIZE; i++){
         
         // if there isn't a tile, return the next available row slot
-        Tile *tile = _gridArray[i][columnIdx];
+        Tile *tile = _gridArray[columnIdx][i];
         if ([tile isEqual:_noTile]) {
             return i;
         }
@@ -136,8 +137,8 @@ static const NSInteger START_TILES = 2;
 - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
     int oldX = newX;
     int oldY = GRID_SIZE - 1;
-    _gridArray[newX][newY] = _gridArray[oldX][oldY];
-    _gridArray[oldX][oldY] = _noTile;
+    _gridArray[newX][newY] = tile;
+    // _gridArray[oldX][oldY] = _noTile;
     CGPoint newPosition = [self positionForColumn:newX row:newY];
     CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.2f position:newPosition];
     [tile runAction:moveTo];
