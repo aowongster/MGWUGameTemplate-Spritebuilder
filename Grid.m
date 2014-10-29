@@ -20,10 +20,22 @@
 	NSNull *_noTile;
 }
 static const NSInteger GRID_SIZE = 6;
-
-
 static const NSInteger START_TILES = 2;
 
+- (void)didLoadFromCCB {
+	[self setupBackground];
+    
+    _noTile = [NSNull null];
+	_gridArray = [NSMutableArray array];
+	for (int i = 0; i < GRID_SIZE; i++) {
+		_gridArray[i] = [NSMutableArray array];
+		for (int j = 0; j < GRID_SIZE; j++) {
+			_gridArray[i][j] = _noTile;
+		}
+	}
+    self.userInteractionEnabled = TRUE;
+    
+}
 // put logic in here
 - (void)setupBackground
 {
@@ -44,34 +56,20 @@ static const NSInteger START_TILES = 2;
 	float x = _tileMarginHorizontal;
 	float y = _tileMarginVertical;
     
-    
-    _gridArray = [NSMutableArray array];
     // grid is off for calculation
 	for (int i = 0; i < GRID_SIZE; i++) {
 		// iterate through each row
 		x = _tileMarginHorizontal;
-        _gridArray[i] = [NSMutableArray array];
 		for (int j = 0; j < GRID_SIZE; j++) {
 			//  iterate through each column in the current row
             
-            // add sprite.
-            // add in a tile?
-            Tile *tile = [[Tile alloc] initTile];
-            tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
-            tile.position = ccp(x, y);
             
             // add grid
             CCNodeColor *backgroundTile = [CCNodeColor nodeWithColor:[CCColor brownColor]];
 			backgroundTile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
 			backgroundTile.position = ccp(x, y);
-           
-			
-            
 			[self addChild:backgroundTile]; // color node
-            [self addChild:tile]; // tile class
-            _gridArray[i][j] = tile;
-            
-            
+            // [self addChild:tile]; // tile class
 
 			x+= _columnWidth + _tileMarginHorizontal;
 		}
@@ -79,30 +77,85 @@ static const NSInteger START_TILES = 2;
 	}
 }
 
-- (void)didLoadFromCCB {
-	[self setupBackground];
-    self.userInteractionEnabled = TRUE;
-   
-}
+
 -(void) touchBegan:(UITouch *)touch withEvent:(UIEvent *)event {
     
     
     //get the x,y coordinates of the touch
     CGPoint touchLocation = [touch locationInNode:self];
     NSLog(@"%f %f", touchLocation.x, touchLocation.y);
+    
+    // make a move
+    int touchColumn = [self columnForTouchPosition:touchLocation];
+    NSLog(@"touch Column %d", touchColumn);
+    
+    int availableRow = [self nextAvailableRow:touchColumn];
+    if(availableRow>=0){
+        NSLog(@"spot open in column %d", touchColumn);
+        // drop a tile in the spot
+        // create a tile and move to newX newY
+        Tile *tile = [[Tile alloc] initTile];
+        tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
+        
+        // position called again in moveTile
+        tile.position = [self positionForColumn:touchColumn row:availableRow];
+        NSLog(@"x: %f, y:%f", tile.position.x, tile.position.y);
+        [self addChild:tile];
+        
+        // - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
+        // _gridArray[availableRow][touchColumn] = tile;
+        //[self moveTile:tile newX:availableRow newY:touchColumn];
+        [self moveTile:tile newX:touchColumn newY:availableRow];
+    }
+    else{
+        NSLog(@"Column Full");
+    }
     //get the Creature at that location
-    Tile *tile = [self tileForTouchPosition:touchLocation];
-    tile.isActive = !tile.isActive;
+    // Tile *tile = [self tileForTouchPosition:touchLocation];
+    // tile.isActive = !tile.isActive;
 }
 
--(Tile*) tileForTouchPosition: (CGPoint)touchPosition {
-    // we have a problem because of ... horizontal and vertical margins?!
-    int row = touchPosition.y/ (_columnHeight + _tileMarginVertical);
-    int column = touchPosition.x/ (_columnWidth + _tileMarginHorizontal);
-    
-    NSLog(@"%d %d", row, column);
-    
-    return _gridArray[row][column];
+-(int)columnForTouchPosition:(CGPoint)touchPosition{
+    return touchPosition.x / ( _columnWidth + _tileMarginHorizontal);
 }
 
+// given column index, what is next available row slot
+-(int)nextAvailableRow:(int)columnIdx{
+    for(int i = 0; i < GRID_SIZE; i++){
+        
+        // if there isn't a tile, return the next available row slot
+        Tile *tile = _gridArray[i][columnIdx];
+        if ([tile isEqual:_noTile]) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// move tile to new spot x = row, y = columns??
+- (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
+    int oldX = newX;
+    int oldY = GRID_SIZE - 1;
+    _gridArray[newX][newY] = _gridArray[oldX][oldY];
+    _gridArray[oldX][oldY] = _noTile;
+    CGPoint newPosition = [self positionForColumn:newX row:newY];
+    CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.2f position:newPosition];
+    [tile runAction:moveTo];
+}
+
+-(Tile*)newTile{
+    
+    Tile *tile = [[Tile alloc] initTile];
+    tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
+    // tile.position = [self positionForColumn:touchColumn row:availableRow];
+    [self addChild:tile]; // i guess so we can see it
+    return tile;
+}
+
+// create a point given column row; did some crazy margin edits to make it fit
+- (CGPoint)positionForColumn:(NSInteger)column row:(NSInteger)row {
+	NSInteger x = 2 * _tileMarginHorizontal + column * (_tileMarginHorizontal + _columnWidth);
+	NSInteger y = (-0.5f * _tileMarginVertical) + row * (_tileMarginVertical + _columnHeight);
+	return CGPointMake(x,y);
+}
 @end

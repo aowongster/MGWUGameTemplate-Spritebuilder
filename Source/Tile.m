@@ -20,7 +20,7 @@ static const CGFloat  spriteScale = .5f;
     self = [super initWithImageNamed:@"stones/blue1.png"];
     
     if (self) {
-        self.isActive = NO;
+        self.isActive = YES; // active for now at least
         // move this out?
         [self setScale:spriteScale];
         [self setAnchorPoint:ccp(0,0)];
