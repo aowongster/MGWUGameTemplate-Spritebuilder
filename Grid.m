@@ -57,6 +57,7 @@ static const NSInteger START_TILES = 2;
             // add sprite.
             // add in a tile?
             Tile *tile = [[Tile alloc] initTile];
+            tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
             tile.position = ccp(x, y);
             
             // add grid
@@ -95,8 +96,9 @@ static const NSInteger START_TILES = 2;
 }
 
 -(Tile*) tileForTouchPosition: (CGPoint)touchPosition {
-    int row = touchPosition.y/ _columnHeight;
-    int column = touchPosition.x/ _columnWidth;
+    // we have a problem because of ... horizontal and vertical margins?!
+    int row = touchPosition.y/ (_columnHeight + _tileMarginVertical);
+    int column = touchPosition.x/ (_columnWidth + _tileMarginHorizontal);
     
     NSLog(@"%d %d", row, column);
     
