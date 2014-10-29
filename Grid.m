@@ -98,7 +98,7 @@ static const NSInteger START_TILES = 2;
         tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
         
         // position called again in moveTile
-        tile.position = [self positionForColumn:touchColumn row:availableRow];
+        tile.position = [self positionForColumn:touchColumn row:GRID_SIZE];
         NSLog(@"x: %f, y:%f", tile.position.x, tile.position.y);
         [self addChild:tile];
         
@@ -155,8 +155,8 @@ static const NSInteger START_TILES = 2;
 
 // create a point given column row; did some crazy margin edits to make it fit
 - (CGPoint)positionForColumn:(NSInteger)column row:(NSInteger)row {
-	NSInteger x = 2 * _tileMarginHorizontal + column * (_tileMarginHorizontal + _columnWidth);
-	NSInteger y = (-0.5f * _tileMarginVertical) + row * (_tileMarginVertical + _columnHeight);
+	NSInteger x = _tileMarginHorizontal + column * (_tileMarginHorizontal + _columnWidth);
+	NSInteger y = (_tileMarginVertical) + row * (_tileMarginVertical + _columnHeight);
 	return CGPointMake(x,y);
 }
 @end
