@@ -39,6 +39,7 @@
 		F30FD48719FF553400560A50 /* Gameplay.m in Sources */ = {isa = PBXBuildFile; fileRef = F30FD48619FF553400560A50 /* Gameplay.m */; };
 		F30FD48B19FF594C00560A50 /* Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = F30FD48A19FF594C00560A50 /* Grid.m */; };
 		F30FD49419FF678400560A50 /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = F30FD49319FF678400560A50 /* Tile.m */; };
+		F3DDDD3E1A0209750024AB1D /* drop.wav in Resources */ = {isa = PBXBuildFile; fileRef = F3DDDD3D1A0209750024AB1D /* drop.wav */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +100,7 @@
 		F30FD48A19FF594C00560A50 /* Grid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Grid.m; sourceTree = "<group>"; };
 		F30FD49219FF678400560A50 /* Tile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tile.h; path = Source/Tile.h; sourceTree = "<group>"; };
 		F30FD49319FF678400560A50 /* Tile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Tile.m; path = Source/Tile.m; sourceTree = "<group>"; };
+		F3DDDD3D1A0209750024AB1D /* drop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = drop.wav; path = ../../drop.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -218,6 +220,7 @@
 		B77F1B4617B978D7009739AE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F3DDDD3D1A0209750024AB1D /* drop.wav */,
 				B73789911807667A0076A88C /* Icons */,
 				B737893A180761570076A88C /* Published-iOS */,
 			);
@@ -326,6 +329,7 @@
 				B71F5917188484E7003F4D28 /* iPhone.png in Resources */,
 				B7378975180762440076A88C /* Default-568h@2x.png in Resources */,
 				B71F5918188484E7003F4D28 /* iPhone@2x.png in Resources */,
+				F3DDDD3E1A0209750024AB1D /* drop.wav in Resources */,
 				B7378977180762440076A88C /* Default.png in Resources */,
 				B71F5911188484E7003F4D28 /* iPad-old.png in Resources */,
 			);

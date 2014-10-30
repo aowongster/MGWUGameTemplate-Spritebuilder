@@ -34,6 +34,9 @@ static const NSInteger START_TILES = 2;
 		}
 	}
     self.userInteractionEnabled = TRUE;
+    OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
+    // play background sound
+    [audio preloadEffect:@"drop.wav"];
     
 }
 // put logic in here
@@ -142,6 +145,18 @@ static const NSInteger START_TILES = 2;
     CGPoint newPosition = [self positionForColumn:newX row:newY];
     CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.2f position:newPosition];
     [tile runAction:moveTo];
+    
+    
+    // play sound effect
+    
+    // - (CCTimer *)scheduleOnce:(SEL)selector delay:(CCTime)delay
+    [self scheduleOnce: @selector(playDropSound) delay:0.3f];
+ 
+}
+
+-(void)playDropSound{
+    OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
+    [audio playEffect:@"drop.wav"];
 }
 
 -(Tile*)newTile{
