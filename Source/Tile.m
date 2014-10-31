@@ -20,28 +20,54 @@ static const CGFloat  spriteScale = .5f;
 - (instancetype)initTile{
     // init with random image?
     _tileNames = [NSArray arrayWithObjects:
-                    @"stones/blue1.png",
-                    @"stones/brown14.png",
-                    @"stones/red10.png",
-                    @"stones/grey9.png",
-                    @"stones/orange5.png",
-                    @"stones/grey18.png",
-                    nil];
+                  @"stones/blue1.png",
+                  @"stones/brown14.png",
+                  @"stones/red10.png",
+                  @"stones/grey9.png",
+                  @"stones/orange5.png",
+                  @"stones/grey18.png",
+                  nil];
     
     self.tileType = arc4random_uniform([_tileNames count] -1);
     self.filename = _tileNames[self.tileType];
     self = [super initWithImageNamed:self.filename];
     
+    
+    // self = [super init];
     if (self) {
         self.isActive = YES; // active for now at least
         // move this out?
         [self setScale:spriteScale];
         [self setAnchorPoint:ccp(0,0)];
-        //self.position = ccp(x, y);
+        [self randProperties];
         
     }
     
     return self;
+}
+
+- (NSString*) getNewFilename{
+    
+    int rand = arc4random_uniform([_tileNames count] -1);
+    return _tileNames[rand];
+    
+}
+
+-(void) randProperties {
+    // init with random image?
+    _tileNames = [NSArray arrayWithObjects:
+                  @"stones/blue1.png",
+                  @"stones/brown14.png",
+                  @"stones/red10.png",
+                  @"stones/grey9.png",
+                  @"stones/orange5.png",
+                  @"stones/grey18.png",
+                  nil];
+    
+    self.tileType = arc4random_uniform([_tileNames count] -1);
+    self.filename = _tileNames[self.tileType];
+    [self setTexture:[[CCSprite spriteWithImageNamed:self.filename]texture]];
+    
 }
 
 - (void)setIsActive:(BOOL)newState {
