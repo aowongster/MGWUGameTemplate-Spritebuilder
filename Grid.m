@@ -67,29 +67,23 @@ static const NSInteger GRID_SIZE = 6;
 		x = _tileMarginHorizontal;
 		for (int j = 0; j < GRID_SIZE; j++) {
 			//  iterate through each column in the current row
-            
-            
             // add grid
             CCNodeColor *backgroundTile = [CCNodeColor nodeWithColor:[CCColor brownColor]];
 			backgroundTile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
 			backgroundTile.position = ccp(x, y);
 			[self addChild:backgroundTile]; // color node
             // [self addChild:tile]; // tile class
-
 			x+= _columnWidth + _tileMarginHorizontal;
 		}
 		y += _columnHeight + _tileMarginVertical;
 	}
 }
 
-
 -(void) touchBegan:(UITouch *)touch withEvent:(UIEvent *)event {
-    
     
     //get the x,y coordinates of the touch
     CGPoint touchLocation = [touch locationInNode:self];
-    NSLog(@"%f %f", touchLocation.x, touchLocation.y);
-    
+
     // make a move
     int touchColumn = [self columnForTouchPosition:touchLocation];
     NSLog(@"touch Column %d", touchColumn);
@@ -101,17 +95,21 @@ static const NSInteger GRID_SIZE = 6;
         // create a tile and move to newX newY
         
         // self.nextTile -- update the image
+        /**
+         copy the parameters of the tile class...maybe make a method
+         
+         then another method to re instantiate! copy - then a recreate
+         
+        **/
+        
         Tile *tile = [[Tile alloc] initTile];
+        // Tile *tile = self.nextTile;
         tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
         
         // position called again in moveTile
         tile.position = [self positionForColumn:touchColumn row:GRID_SIZE];
         NSLog(@"x: %f, y:%f", tile.position.x, tile.position.y);
         [self addChild:tile];
-        
-        // - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
-        // _gridArray[availableRow][touchColumn] = tile;
-        //[self moveTile:tile newX:availableRow newY:touchColumn];
         [self moveTile:tile newX:touchColumn newY:availableRow];
     }
     else{
