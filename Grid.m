@@ -21,7 +21,6 @@
 }
 
 static const NSInteger GRID_SIZE = 6;
-static const NSInteger START_TILES = 2;
 
 - (void)didLoadFromCCB {
 	[self setupBackground];
@@ -38,6 +37,8 @@ static const NSInteger START_TILES = 2;
     OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
     // play background sound
     [audio preloadEffect:@"drop.wav"];
+    
+    self.nextTile = [[Tile alloc] initTile];
     
 }
 // put logic in here
@@ -98,6 +99,8 @@ static const NSInteger START_TILES = 2;
         NSLog(@"spot open in column %d", touchColumn);
         // drop a tile in the spot
         // create a tile and move to newX newY
+        
+        // self.nextTile -- update the image
         Tile *tile = [[Tile alloc] initTile];
         tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
         

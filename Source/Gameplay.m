@@ -19,12 +19,16 @@
 -(void)didLoadFromCCB{
  
     // how come I dont see this tile?
-    _nextTile = [[Tile alloc] initTile];
+    _nextTile = _grid.nextTile;
     _nextTile.position = ccp(25, 400);
     [self addChild:_nextTile];
 }
 
 // every second of update I could redraw the next tile?
-
+- (void)update:(CCTime)delta {
+    // update the texture of _nextTile if it changes!
+    [_nextTile setTexture:[[CCSprite spriteWithImageNamed:_grid.nextTile.filename]texture]];
+    // [yourSprite setTexture:[[CCSprite spriteWithFile:@"yourImage.png"]texture]];
+}
 
 @end

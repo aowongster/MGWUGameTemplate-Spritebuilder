@@ -14,6 +14,6 @@
     
 }
 
-@property (nonatomic, assign) Tile* nextTile;
+@property (nonatomic, strong) Tile* nextTile;
 
 @end
