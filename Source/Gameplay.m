@@ -13,11 +13,18 @@
 
 @implementation Gameplay {
     Grid *_grid;
+    Tile *_nextTile;
 }
 
 -(void)didLoadFromCCB{
  
+    // how come I dont see this tile?
+    _nextTile = [[Tile alloc] initTile];
+    _nextTile.position = ccp(25, 400);
+    [self addChild:_nextTile];
 }
+
+// every second of update I could redraw the next tile?
 
 
 @end

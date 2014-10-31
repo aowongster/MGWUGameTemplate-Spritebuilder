@@ -7,7 +7,6 @@
 //
 
 #import "Grid.h"
-#import "Tile.h"
 
 
 @implementation Grid {
@@ -18,7 +17,9 @@
     
     NSMutableArray *_gridArray;
 	NSNull *_noTile;
+
 }
+
 static const NSInteger GRID_SIZE = 6;
 static const NSInteger START_TILES = 2;
 
@@ -138,11 +139,11 @@ static const NSInteger START_TILES = 2;
 
 // move tile to new spot x = row, y = columns??
 - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
-    int oldX = newX;
-    int oldY = GRID_SIZE - 1;
     _gridArray[newX][newY] = tile;
     // _gridArray[oldX][oldY] = _noTile;
     CGPoint newPosition = [self positionForColumn:newX row:newY];
+    
+    // do calculation for distance on how far to move
     CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.2f position:newPosition];
     [tile runAction:moveTo];
     

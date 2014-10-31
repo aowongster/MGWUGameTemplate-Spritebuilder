@@ -12,8 +12,10 @@
 @interface Tile : CCSprite {
 
 }
+
 @property (nonatomic, assign) BOOL isActive;
 @property (nonatomic, assign) int tileType;
+@property (nonatomic, assign) NSString* filename;
 
 - (id)initTile;
 

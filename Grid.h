@@ -8,9 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
+#import "Tile.h"
 
 @interface Grid : CCNodeColor {
     
 }
+
+@property (nonatomic, assign) Tile* nextTile;
 
 @end

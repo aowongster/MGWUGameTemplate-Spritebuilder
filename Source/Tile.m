@@ -29,7 +29,8 @@ static const CGFloat  spriteScale = .5f;
                     nil];
     
     self.tileType = arc4random_uniform([_tileNames count] -1);
-    self = [super initWithImageNamed:_tileNames[self.tileType]];
+    self.filename = _tileNames[self.tileType];
+    self = [super initWithImageNamed:self.filename];
     
     if (self) {
         self.isActive = YES; // active for now at least
