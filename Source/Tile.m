@@ -10,14 +10,26 @@
 
 
 @implementation Tile{
+    // implement types here
+    int *_tileType;
+    NSArray *_tileNames;
     
 }
 static const CGFloat  spriteScale = .5f;
 
 - (instancetype)initTile{
-    // since we made Creature inherit from CCSprite, 'super' below refers to CCSprite
     // init with random image?
-    self = [super initWithImageNamed:@"stones/blue1.png"];
+    _tileNames = [NSArray arrayWithObjects:
+                    @"stones/blue1.png",
+                    @"stones/brown14.png",
+                    @"stones/red10.png",
+                    @"stones/grey9.png",
+                    @"stones/orange5.png",
+                    @"stones/grey18.png",
+                    nil];
+    
+    int rand = arc4random_uniform([_tileNames count] -1);
+    self = [super initWithImageNamed:_tileNames[rand]];
     
     if (self) {
         self.isActive = YES; // active for now at least
@@ -27,8 +39,6 @@ static const CGFloat  spriteScale = .5f;
         //self.position = ccp(x, y);
         
     }
-    
-    
     
     return self;
 }

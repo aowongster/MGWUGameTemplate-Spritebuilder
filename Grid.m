@@ -150,10 +150,14 @@ static const NSInteger START_TILES = 2;
     // play sound effect
     
     // - (CCTimer *)scheduleOnce:(SEL)selector delay:(CCTime)delay
-    [self scheduleOnce: @selector(playDropSound) delay:0.3f];
- 
+    // [self scheduleOnce: @selector(playDropSound) delay:0.3f];
+    [self scheduleBlock:^(CCTimer *timer){
+        OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
+        [audio playEffect:@"drop.wav"];
+    } delay:0.3f];
 }
 
+// well i guess i dont need this guy anymore
 -(void)playDropSound{
     OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
     [audio playEffect:@"drop.wav"];
