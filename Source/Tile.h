@@ -13,6 +13,7 @@
 
 }
 @property (nonatomic, assign) BOOL isActive;
+@property (nonatomic, assign) int tileType;
 
 - (id)initTile;
 

@@ -11,7 +11,7 @@
 
 @implementation Tile{
     // implement types here
-    int *_tileType;
+    // int *_tileType;
     NSArray *_tileNames;
     
 }
@@ -28,8 +28,8 @@ static const CGFloat  spriteScale = .5f;
                     @"stones/grey18.png",
                     nil];
     
-    int rand = arc4random_uniform([_tileNames count] -1);
-    self = [super initWithImageNamed:_tileNames[rand]];
+    self.tileType = arc4random_uniform([_tileNames count] -1);
+    self = [super initWithImageNamed:_tileNames[self.tileType]];
     
     if (self) {
         self.isActive = YES; // active for now at least
