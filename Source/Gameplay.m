@@ -31,4 +31,10 @@
     // [yourSprite setTexture:[[CCSprite spriteWithFile:@"yourImage.png"]texture]];
 }
 
+// wipes the grid
+- (void) reset {
+    CCScene *gameplayScene = [CCBReader loadAsScene:@"Gameplay"];
+    [[CCDirector sharedDirector] replaceScene:gameplayScene];
+}
+
 @end

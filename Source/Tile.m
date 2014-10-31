@@ -32,14 +32,14 @@ static const CGFloat  spriteScale = .5f;
     self.filename = _tileNames[self.tileType];
     self = [super initWithImageNamed:self.filename];
     
-    
+    // not sure why image has to be setup out here
     // self = [super init];
     if (self) {
         self.isActive = YES; // active for now at least
         // move this out?
         [self setScale:spriteScale];
         [self setAnchorPoint:ccp(0,0)];
-        [self randomProperties];
+        // [self randomProperties];
         
     }
     
@@ -71,10 +71,7 @@ static const CGFloat  spriteScale = .5f;
 }
 
 - (void)setIsActive:(BOOL)newState {
-    //when you create an @property as we did in the .h, an instance variable with a leading underscore is automatically created for you
     _isActive = newState;
-    
-    // 'visible' is a property of any class that inherits from CCNode. CCSprite is a subclass of CCNode, and Creature is a subclass of CCSprite, so Creatures have a visible property
     self.visible = _isActive;
 }
 

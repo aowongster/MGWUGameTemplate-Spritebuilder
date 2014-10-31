@@ -23,24 +23,34 @@
 static const NSInteger GRID_SIZE = 6;
 
 - (void)didLoadFromCCB {
-	[self setupBackground];
     
     _noTile = [NSNull null];
-	_gridArray = [NSMutableArray array];
-	for (int i = 0; i < GRID_SIZE; i++) {
-		_gridArray[i] = [NSMutableArray array];
-		for (int j = 0; j < GRID_SIZE; j++) {
-			_gridArray[i][j] = _noTile;
-		}
-	}
+	
+    // draws brown squares
+    [self setupBackground];
+	[self nullGrid];
+    
     self.userInteractionEnabled = TRUE;
+    
     OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
-    // play background sound
     [audio preloadEffect:@"drop.wav"];
     
     self.nextTile = [[Tile alloc] initTile];
     
 }
+
+-(void) nullGrid{
+    // cleans objects in array
+    _gridArray = [NSMutableArray array];
+    for (int i = 0; i < GRID_SIZE; i++) {
+		_gridArray[i] = [NSMutableArray array];
+		for (int j = 0; j < GRID_SIZE; j++) {
+			_gridArray[i][j] = _noTile;
+		}
+	}
+    // need to trigger a redraw
+}
+
 // put logic in here
 - (void)setupBackground
 {
@@ -104,6 +114,13 @@ static const NSInteger GRID_SIZE = 6;
         
         // how about copy over the properties
         Tile *tile = [[Tile alloc] initTile];
+        
+        tile.filename = self.nextTile.filename;
+        tile.tileType = self.nextTile.tileType;
+        [tile setTexture:[[CCSprite spriteWithImageNamed:tile.filename]texture]];
+        
+        // set texture
+        
         // copy properties of self.nextTile;
         
         [self.nextTile randomProperties];
@@ -114,7 +131,6 @@ static const NSInteger GRID_SIZE = 6;
         
         // position called again in moveTile
         tile.position = [self positionForColumn:touchColumn row:GRID_SIZE];
-        NSLog(@"x: %f, y:%f", tile.position.x, tile.position.y);
         [self addChild:tile];
         [self moveTile:tile newX:touchColumn newY:availableRow];
     }
