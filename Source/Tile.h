@@ -18,6 +18,7 @@
 @property (nonatomic, assign) NSString* filename;
 
 - (id)initTile;
+-(void)randomProperties;
 
 
 

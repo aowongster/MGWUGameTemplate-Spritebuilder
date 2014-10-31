@@ -39,7 +39,7 @@ static const CGFloat  spriteScale = .5f;
         // move this out?
         [self setScale:spriteScale];
         [self setAnchorPoint:ccp(0,0)];
-        [self randProperties];
+        [self randomProperties];
         
     }
     
@@ -53,7 +53,7 @@ static const CGFloat  spriteScale = .5f;
     
 }
 
--(void) randProperties {
+-(void) randomProperties {
     // init with random image?
     _tileNames = [NSArray arrayWithObjects:
                   @"stones/blue1.png",

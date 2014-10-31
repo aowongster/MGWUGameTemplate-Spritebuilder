@@ -102,7 +102,13 @@ static const NSInteger GRID_SIZE = 6;
          
         **/
         
+        // how about copy over the properties
         Tile *tile = [[Tile alloc] initTile];
+        // copy properties of self.nextTile;
+        
+        [self.nextTile randomProperties];
+        
+        
         // Tile *tile = self.nextTile;
         tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
         
