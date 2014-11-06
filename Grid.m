@@ -98,12 +98,12 @@ static const NSInteger GRID_COLUMNS = GRID_SIZE;
 
     // make a move
     int touchColumn = [self columnForTouchPosition:touchLocation];
-    NSLog(@"touch Column %d", touchColumn);
+    // NSLog(@"touch Column %d", touchColumn);
     
     // returns an idx
     int availableRow = [self nextAvailableRow:touchColumn];
     if(availableRow>=0){
-        NSLog(@"spot open in column %d", touchColumn);
+        // NSLog(@"spot open in column %d", touchColumn);
         // drop a tile in the spot
         // create a tile and move to newX newY
         
@@ -144,7 +144,7 @@ static const NSInteger GRID_COLUMNS = GRID_SIZE;
         [self updateTiles];
     }
     else{
-        NSLog(@"Column Full");
+        // NSLog(@"Column Full");
     }
     //get the Creature at that location
     // Tile *tile = [self tileForTouchPosition:touchLocation];
@@ -294,7 +294,10 @@ static const NSInteger GRID_COLUMNS = GRID_SIZE;
                 [self tileRemoved:currTile];
                 _gridArray[i][j] = _noTile;
                 
+                // recursively destroy adjacent 3
+                
                 // need to redraw now.. dropping down all tiles.
+                //[self moveDropColumn:column];
             }
             
         }
@@ -304,5 +307,9 @@ static const NSInteger GRID_COLUMNS = GRID_SIZE;
 
 - (void)tileRemoved:(CCNode *)tile {
     [tile removeFromParent];
+}
+
+-(void)dropColumn:(NSInteger)column{
+    // give column, move all tiles down 1 to next row...
 }
 @end
