@@ -30,6 +30,7 @@ static const CGFloat  spriteScale = .5f;
     
     self.tileType = arc4random_uniform([_tileNames count] -1);
     self.filename = _tileNames[self.tileType];
+    // self.sameNeighbors = 0;
     self = [super initWithImageNamed:self.filename];
     
     // not sure why image has to be setup out here
@@ -74,5 +75,7 @@ static const CGFloat  spriteScale = .5f;
     _isActive = newState;
     self.visible = _isActive;
 }
+
+
 
 @end

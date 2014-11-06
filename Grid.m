@@ -21,6 +21,8 @@
 }
 
 static const NSInteger GRID_SIZE = 6;
+static const NSInteger GRID_ROWS = GRID_SIZE;
+static const NSInteger GRID_COLUMNS = GRID_SIZE;
 
 - (void)didLoadFromCCB {
     
@@ -98,6 +100,7 @@ static const NSInteger GRID_SIZE = 6;
     int touchColumn = [self columnForTouchPosition:touchLocation];
     NSLog(@"touch Column %d", touchColumn);
     
+    // returns an idx
     int availableRow = [self nextAvailableRow:touchColumn];
     if(availableRow>=0){
         NSLog(@"spot open in column %d", touchColumn);
@@ -131,8 +134,14 @@ static const NSInteger GRID_SIZE = 6;
         
         // position called again in moveTile
         tile.position = [self positionForColumn:touchColumn row:GRID_SIZE];
+        
+        // separate way to track references
         [self addChild:tile];
         [self moveTile:tile newX:touchColumn newY:availableRow];
+        
+        // count neighbors and blow things up
+        [self countNeighbors];
+        [self updateTiles];
     }
     else{
         NSLog(@"Column Full");
@@ -188,7 +197,6 @@ static const NSInteger GRID_SIZE = 6;
 }
 
 -(Tile*)newTile{
-    
     Tile *tile = [[Tile alloc] initTile];
     tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
     // tile.position = [self positionForColumn:touchColumn row:availableRow];
@@ -201,5 +209,100 @@ static const NSInteger GRID_SIZE = 6;
 	NSInteger x = _tileMarginHorizontal + column * (_tileMarginHorizontal + _columnWidth);
 	NSInteger y = (_tileMarginVertical) + row * (_tileMarginVertical + _columnHeight);
 	return CGPointMake(x,y);
+}
+
+// factor this guy
+-(void) countNeighbors{
+    // iterate through the rows
+    // note that NSArray has a method 'count' that will return the number of elements in the array
+    for (int i = 0; i < [_gridArray count]; i++)
+    {
+        // iterate through all the columns for a given row
+        for (int j = 0; j < [_gridArray[i] count]; j++)
+        {
+            // access the creature in the cell that corresponds to the current row/column
+            
+            // tiles is not made yet?
+            if(_gridArray[i][j] == _noTile){
+                // NSLog(@"catch null");
+                continue;
+            }
+            // else
+            Tile *currTile = _gridArray[i][j];
+            
+            currTile.sameNeighbors = 0;
+            
+            // now examine every cell around the current one
+            // go through the row on top of the current cell, the row the cell is in, and the row past the current cell
+            for (int x = (i-1); x <= (i+1); x++)
+            {
+                // go through the column to the left of the current cell, the column the cell is in, and the column to the right of the current cell
+                for (int y = (j-1); y <= (j+1); y++)
+                {
+                    // check that the cell we're checking isn't off the screen
+                    BOOL isIndexValid;
+                    isIndexValid = [self isIndexValidForX:x andY:y];
+                    
+                    // skip over all cells that are off screen AND the cell that contains the creature we are currently updating
+                    if (!((x == i) && (y == j)) && isIndexValid)
+                    {
+                        Tile *neighbor = _gridArray[x][y];
+                        if(neighbor == (Tile*)_noTile){
+                            continue;
+                        }
+                        if (neighbor.filename == currTile.filename)
+                        {
+                            currTile.sameNeighbors += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// taken from makes games with us game of life
+- (BOOL)isIndexValidForX:(int)x andY:(int)y
+{
+    BOOL isIndexValid = YES;
+    if(x < 0 || y < 0 || x >= GRID_ROWS || y >= GRID_COLUMNS)
+    {
+        isIndexValid = NO;
+    }
+    return isIndexValid;
+}
+
+-(void) updateTiles{
+    // iterate over all tiles and blow up 4 of a kind.
+    for (int i = 0; i < [_gridArray count]; i++)
+    {
+        // iterate through all the columns for a given row
+        for (int j = 0; j < [_gridArray[i] count]; j++)
+        {
+            if([_gridArray[i][j] isEqual:_noTile]){
+                // NSLog(@"catch null");
+                continue;
+            }
+            Tile *currTile = _gridArray[i][j];
+            
+            // flagging 2 would be 3?
+            if(currTile.sameNeighbors >= 2)
+            {
+                // blow them up .. how do i...
+                // currTile = (Tile*)_noTile; // set it to null...
+                NSLog(@"got 3");
+                [self tileRemoved:currTile];
+                _gridArray[i][j] = _noTile;
+                
+                // need to redraw now.. dropping down all tiles.
+            }
+            
+        }
+        
+    }
+}
+
+- (void)tileRemoved:(CCNode *)tile {
+    [tile removeFromParent];
 }
 @end

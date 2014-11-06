@@ -16,6 +16,7 @@
 @property (nonatomic, assign) BOOL isActive;
 @property (nonatomic, assign) int tileType;
 @property (nonatomic, assign) NSString* filename;
+@property (nonatomic, assign) int sameNeighbors;
 
 - (id)initTile;
 -(void)randomProperties;
