@@ -39,6 +39,7 @@
 		F30FD48719FF553400560A50 /* Gameplay.m in Sources */ = {isa = PBXBuildFile; fileRef = F30FD48619FF553400560A50 /* Gameplay.m */; };
 		F30FD48B19FF594C00560A50 /* Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = F30FD48A19FF594C00560A50 /* Grid.m */; };
 		F30FD49419FF678400560A50 /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = F30FD49319FF678400560A50 /* Tile.m */; };
+		F3D0AEBB1A0B3F49004F14B7 /* break.wav in Resources */ = {isa = PBXBuildFile; fileRef = F3D0AEBA1A0B3F49004F14B7 /* break.wav */; };
 		F3DDDD3E1A0209750024AB1D /* drop.wav in Resources */ = {isa = PBXBuildFile; fileRef = F3DDDD3D1A0209750024AB1D /* drop.wav */; };
 /* End PBXBuildFile section */
 
@@ -100,6 +101,7 @@
 		F30FD48A19FF594C00560A50 /* Grid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Grid.m; sourceTree = "<group>"; };
 		F30FD49219FF678400560A50 /* Tile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tile.h; path = Source/Tile.h; sourceTree = "<group>"; };
 		F30FD49319FF678400560A50 /* Tile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Tile.m; path = Source/Tile.m; sourceTree = "<group>"; };
+		F3D0AEBA1A0B3F49004F14B7 /* break.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = break.wav; sourceTree = "<group>"; };
 		F3DDDD3D1A0209750024AB1D /* drop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = drop.wav; path = ../../drop.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -220,6 +222,7 @@
 		B77F1B4617B978D7009739AE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F3D0AEBA1A0B3F49004F14B7 /* break.wav */,
 				F3DDDD3D1A0209750024AB1D /* drop.wav */,
 				B73789911807667A0076A88C /* Icons */,
 				B737893A180761570076A88C /* Published-iOS */,
@@ -322,6 +325,7 @@
 				B71F5913188484E7003F4D28 /* iPad.png in Resources */,
 				B71F5912188484E7003F4D28 /* iPad-old@2x.png in Resources */,
 				B71F5916188484E7003F4D28 /* iPhone-old@2x.png in Resources */,
+				F3D0AEBB1A0B3F49004F14B7 /* break.wav in Resources */,
 				B737893B180761570076A88C /* Published-iOS in Resources */,
 				B71F591A188484E7003F4D28 /* Settings@2x.png in Resources */,
 				B7378976180762440076A88C /* Default-Landscape~ipad.png in Resources */,

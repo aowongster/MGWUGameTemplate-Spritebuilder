@@ -23,6 +23,7 @@
 static const NSInteger GRID_SIZE = 6;
 static const NSInteger GRID_ROWS = GRID_SIZE;
 static const NSInteger GRID_COLUMNS = GRID_SIZE;
+static const CGFloat SOUND_DELAY = 0.3f;
 
 - (void)didLoadFromCCB {
     
@@ -184,16 +185,14 @@ static const NSInteger GRID_COLUMNS = GRID_SIZE;
     
     // - (CCTimer *)scheduleOnce:(SEL)selector delay:(CCTime)delay
     // [self scheduleOnce: @selector(playDropSound) delay:0.3f];
-    [self scheduleBlock:^(CCTimer *timer){
-        OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
-        [audio playEffect:@"drop.wav"];
-    } delay:0.3f];
+    [self playSound:@"drop.wav"];
 }
 
-// well i guess i dont need this guy anymore
--(void)playDropSound{
-    OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
-    [audio playEffect:@"drop.wav"];
+-(void)playSound:(NSString*)sound{
+    [self scheduleBlock:^(CCTimer *timer){
+        OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
+        [audio playEffect:sound];
+    } delay:SOUND_DELAY];
 }
 
 -(Tile*)newTile{
@@ -289,15 +288,17 @@ static const NSInteger GRID_COLUMNS = GRID_SIZE;
             if(currTile.sameNeighbors >= 2)
             {
                 // blow them up .. how do i...
-                // currTile = (Tile*)_noTile; // set it to null...
-                NSLog(@"got 3");
+                [self playSound:@"break.wav"];
+                
                 [self tileRemoved:currTile];
                 _gridArray[i][j] = _noTile;
                 
-                // recursively destroy adjacent 3
+                //2. recursively destroy adjacent 3
                 
-                // need to redraw now.. dropping down all tiles.
+                //1. need to redraw now.. dropping down all tiles.
                 //[self moveDropColumn:column];
+                
+                // 3. tile exploding animation?
             }
             
         }
