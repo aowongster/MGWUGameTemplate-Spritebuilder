@@ -24,9 +24,10 @@ static const NSInteger NUM_ROWS = 9;
 static const NSInteger NUM_COLUMNS = 6;
 static const NSInteger TILE_SIZE = 45;
 
-static const CGFloat ANIMATION_DELAY = 0.5f;
+static const CGFloat ANIMATION_DELAY = 0.25f;
 static const CGFloat SOUND_DELAY = ANIMATION_DELAY + 0.1f;
 static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.1f;
+static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 
 // x 320 x 554
 
@@ -128,7 +129,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.1f;
         [self addChild:tile];
         
         [self moveTile:tile newX:touchColumn newY:availableRow];
-        [self playSound:@"drop.wav"];
+    
         
         // count all neighbors and blow things up
         // delay .2 seconds
@@ -173,7 +174,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.1f;
 
 // move tile to new spot x = row, y = columns??
 // this is the heart, when next spot is determined, there's a race condition
-- (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
+- (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY delay:(CGFloat)delay {
     // what happened to old position?
     _gridArray[newX][newY] = tile;
     tile.column = newX;
@@ -184,12 +185,18 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.1f;
     
     // do calculation for distance on how far to move
     // better heuristic would be by distance! longer distance = more time
-    CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:ANIMATION_DELAY position:newPosition];
+    CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:delay position:newPosition];
     [tile runAction:moveTo];
     
     // play sound effect
+    [self playSound:@"drop.wav"];
     
 }
+
+- (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
+    [self moveTile:tile newX:newX newY:newY delay:ANIMATION_DELAY];
+}
+
 
 // bug here
 -(void)dropColumn:(int)column row:(int)row{
@@ -215,17 +222,18 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.1f;
             
             // can i just drop down 1? j -1 hit a zero
             int nextRow = [self nextAvailableRow:column];
-            [self moveTile:tile newX:column newY:nextRow]; // this assumes nothing is at the moved spot
+            [self moveTile:tile newX:column newY:nextRow delay:DROP_DELAY]; // this assumes nothing is at the moved spot
             _gridArray[column][j] = _noTile;
             
             
         }
+        [self playSound:@"drop.wav"];
         
     });
 }
 
 // factor this guy something broken with this logic...
-// this guy still buggy
+// this guy still buggy, fix to count 4's maybe need different algo
 -(void) countNeighbors{
     // iterate through the rows
     for (int i = 0; i < [_gridArray count]; i++)
@@ -269,7 +277,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.1f;
                             // [nsMutArray insertObject:label atIndex:0];
                             // [currTile.neighborArray insertObject:neighbor atIndex:currTile.sameNeighbors]; // keeps adding to front
                             currTile.neighborArray[currTile.sameNeighbors] = neighbor;
-                            NSLog(@"neighbor obj idx add count: %d", currTile.sameNeighbors);
+                            //NSLog(@"neighbor obj idx add count: %d", currTile.sameNeighbors);
                             currTile.sameNeighbors += 1;
                         }
                     }
@@ -316,6 +324,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.1f;
                     {
                         [self tileRemoved:neighborTile];
                         [self dropColumn:neighborTile.column row:neighborTile.row+1];
+                       
                         // need to remove their grid position as well
                         // comboes are not workin
                     }
