@@ -245,8 +245,9 @@ static const CGFloat SOUND_DELAY = 0.3f;
                         }
                         if (neighbor.filename == currTile.filename)
                         {
+                            // [nsMutArray insertObject:label atIndex:0];
+                            [currTile.neighborArray insertObject:neighbor atIndex:currTile.sameNeighbors];
                             currTile.sameNeighbors += 1;
-                            //currTile.neighborArray [ add neighbor]
                         }
                     }
                 }

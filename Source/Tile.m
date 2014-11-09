@@ -30,7 +30,7 @@ static const CGFloat  spriteScale = .5f;
     
     self.tileType = arc4random_uniform([_tileNames count]-1.0);
     self.filename = _tileNames[self.tileType];
-    self.neighborArray =[NSMutableArray array];
+    self.neighborArray = [[NSMutableArray alloc] init];
     // self.sameNeighbors = 0;
     self = [super initWithImageNamed:self.filename];
     
