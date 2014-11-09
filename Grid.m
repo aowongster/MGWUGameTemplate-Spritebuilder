@@ -45,9 +45,9 @@ static const CGFloat SOUND_DELAY = 0.3f;
 -(void) nullGrid{
     // cleans objects in array
     _gridArray = [NSMutableArray array];
-    for (int i = 0; i < GRID_SIZE; i++) {
+    for (int i = 0; i < GRID_COLUMNS; i++) {
 		_gridArray[i] = [NSMutableArray array];
-		for (int j = 0; j < GRID_SIZE; j++) {
+		for (int j = 0; j < GRID_ROWS; j++) {
 			_gridArray[i][j] = _noTile;
 		}
 	}
@@ -313,6 +313,14 @@ static const CGFloat SOUND_DELAY = 0.3f;
 }
 
 - (void)tileRemoved:(CCNode *)tile {
+    
+    CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
+    // make the particle effect clean itself up, once it is completed
+    explosion.autoRemoveOnFinish = TRUE;
+    // place the particle effect on the seals position
+    explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
+    // add the particle effect to the same node the seal is on
+    [tile.parent addChild:explosion];
     [tile removeFromParent];
 }
 
