@@ -20,10 +20,12 @@
 
 }
 
-static const NSInteger GRID_SIZE = 7;
-static const NSInteger GRID_ROWS = GRID_SIZE;
-static const NSInteger GRID_COLUMNS = GRID_SIZE-2;
+static const NSInteger NUM_ROWS = 9;
+static const NSInteger NUM_COLUMNS = 6;
+static const NSInteger TILE_SIZE = 45;
 static const CGFloat SOUND_DELAY = 0.3f;
+
+// x 320 x 554
 
 - (void)didLoadFromCCB {
     
@@ -45,9 +47,9 @@ static const CGFloat SOUND_DELAY = 0.3f;
 -(void) nullGrid{
     // cleans objects in array
     _gridArray = [NSMutableArray array];
-    for (int i = 0; i < GRID_COLUMNS; i++) {
+    for (int i = 0; i < NUM_COLUMNS; i++) {
 		_gridArray[i] = [NSMutableArray array];
-		for (int j = 0; j < GRID_ROWS; j++) {
+		for (int j = 0; j < NUM_ROWS; j++) {
 			_gridArray[i][j] = _noTile;
 		}
 	}
@@ -58,34 +60,37 @@ static const CGFloat SOUND_DELAY = 0.3f;
 - (void)setupBackground
 {
 	// load one tile to read the dimensions
-	CCNode *tile = [CCBReader load:@"backgroundTile"];
+	// CCNode *tile = [CCBReader load:@"backgroundTile"];
     
     // these guys are fixed, reports 0 // hard code not scalable
-	_columnWidth = tile.contentSize.width;
-	_columnHeight = tile.contentSize.height;
+    _columnWidth = TILE_SIZE;
+    _columnHeight = TILE_SIZE;
     
     // this hotfix is needed because of issue #638 in Cocos2D 3.1 / SB 1.1 (https://github.com/spritebuilder/SpriteBuilder/issues/638)
     
     // [tile performSelector:@selector(cleanup)];
 	// calculate the margin by subtracting the tile sizes from the grid size
-	_tileMarginHorizontal = (self.contentSize.width - (GRID_COLUMNS * _columnWidth)) / (GRID_SIZE+1);
-	_tileMarginVertical = (self.contentSize.height - (GRID_ROWS * _columnWidth)) / (GRID_SIZE+1);
+	_tileMarginHorizontal = (self.contentSize.width - (NUM_COLUMNS * TILE_SIZE)) / (NUM_COLUMNS+1);
+	_tileMarginVertical = (self.contentSize.height - (NUM_ROWS * TILE_SIZE)) / (NUM_ROWS+1);
 	// set up initial x and y positions
 	float x = _tileMarginHorizontal;
 	float y = _tileMarginVertical;
+    NSLog(@"content size: %f %f", self.contentSize.height, self.contentSize.height);
+    NSLog(@"%f %f", x, y);
     
     // grid is off for calculation
-	for (int i = 0; i < GRID_COLUMNS; i++) {
+	for (int i = 0; i < NUM_COLUMNS; i++) {
 		// iterate through each row
 		x = _tileMarginHorizontal;
-		for (int j = 0; j < GRID_ROWS; j++) {
+		for (int j = 0; j < NUM_ROWS; j++) {
 			//  iterate through each column in the current row
             // add grid
             CCNodeColor *backgroundTile = [CCNodeColor nodeWithColor:[CCColor brownColor]];
 			backgroundTile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
 			backgroundTile.position = ccp(x, y);
 			[self addChild:backgroundTile]; // color node
-            // [self addChild:tile]; // tile class
+            
+            // my adding is a bit funky
 			x+= _columnWidth + _tileMarginHorizontal;
 		}
 		y += _columnHeight + _tileMarginVertical;
@@ -99,10 +104,10 @@ static const CGFloat SOUND_DELAY = 0.3f;
 
     // make a move
     int touchColumn = [self columnForTouchPosition:touchLocation];
-    // NSLog(@"touch Column %d", touchColumn);
+    NSLog(@"touch Column %d", touchColumn);
     int availableRow = [self nextAvailableRow:touchColumn];
     if(availableRow>=0){
-        NSLog(@"space available, moving");
+        // NSLog(@"space available, moving");
         // NSLog(@"spot open in column %d", touchColumn);
  
         // how about copy over the properties or use a cleaner methods
@@ -124,7 +129,7 @@ static const CGFloat SOUND_DELAY = 0.3f;
         
         // position called again in moveTile
         //this is why it hovers from the top
-        tile.position = [self positionForColumn:touchColumn row:GRID_SIZE];
+        tile.position = [self positionForColumn:touchColumn row:NUM_ROWS];
         
         // separate way to track references
         [self addChild:tile];
@@ -133,7 +138,7 @@ static const CGFloat SOUND_DELAY = 0.3f;
         // count all neighbors and blow things up
         // delay .2 seconds
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            [self countNeighbors];
+            // [self countNeighbors];
             [self updateTiles];
         });
    
@@ -148,11 +153,10 @@ static const CGFloat SOUND_DELAY = 0.3f;
 }
 
 // given column index, what is next available row slot
-// my columns and rows are all screwy
 // maybe reverse this, creates unnecessary extra loops
 -(int)nextAvailableRow:(int)columnIdx{
     int idx = -1;
-    for(int i = GRID_SIZE-1; i >= 0; i--){
+    for(int i = NUM_ROWS-1; i >= 0; i--){
         // NSLog(@"%d %d", i, columnIdx);
         // no we counting top down
         // if there isn't a tile, return the next available row slot
@@ -260,7 +264,7 @@ static const CGFloat SOUND_DELAY = 0.3f;
 - (BOOL)isIndexValidForX:(int)x andY:(int)y
 {
     BOOL isIndexValid = YES;
-    if(x < 0 || y < 0 || x >= GRID_ROWS || y >= GRID_COLUMNS)
+    if(x < 0 || y < 0 || x >= NUM_ROWS|| y >= NUM_COLUMNS)
     {
         isIndexValid = NO;
     }
