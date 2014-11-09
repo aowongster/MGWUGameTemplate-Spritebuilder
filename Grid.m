@@ -23,8 +23,10 @@
 static const NSInteger NUM_ROWS = 9;
 static const NSInteger NUM_COLUMNS = 6;
 static const NSInteger TILE_SIZE = 45;
-static const CGFloat SOUND_DELAY = 0.25f;
-static const CGFloat ANIMATION_DELAY = 0.2f;
+
+static const CGFloat ANIMATION_DELAY = 0.5f;
+static const CGFloat SOUND_DELAY = ANIMATION_DELAY + 0.1f;
+static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.1f;
 
 // x 320 x 554
 
@@ -74,8 +76,8 @@ static const CGFloat ANIMATION_DELAY = 0.2f;
 	// set up initial x and y positions
 	float x = _tileMarginHorizontal;
 	float y = _tileMarginVertical;
-    NSLog(@"content size: %f %f", self.contentSize.height, self.contentSize.height);
-    NSLog(@"%f %f", x, y);
+    //NSLog(@"content size: %f %f", self.contentSize.height, self.contentSize.height);
+    //NSLog(@"%f %f", x, y);
     
     // let to right, bottom to top
 	for (int i = 0; i < NUM_ROWS; i++) {
@@ -103,49 +105,43 @@ static const CGFloat ANIMATION_DELAY = 0.2f;
 
     // make a move
     int touchColumn = [self columnForTouchPosition:touchLocation];
-    NSLog(@"touch Column %d", touchColumn);
+    //NSLog(@"touch Column %d", touchColumn);
     int availableRow = [self nextAvailableRow:touchColumn];
     if(availableRow>=0){
         // NSLog(@"space available, moving");
         // NSLog(@"spot open in column %d", touchColumn);
  
         // how about copy over the properties or use a cleaner methods
+             // copy properties of self.nextTile;
         Tile *tile = [[Tile alloc] initTile];
-        
         tile.filename = self.nextTile.filename;
         tile.tileType = self.nextTile.tileType;
         //tile.row = NUM_ROWS;
         [tile setTexture:[[CCSprite spriteWithImageNamed:tile.filename]texture]];
         
-        // set texture
-        
-        // copy properties of self.nextTile;
-        
+        // new nextTile
         [self.nextTile randomProperties];
         
-        
-        // Tile *tile = self.nextTile;
+        // starting position of tile
         tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
-        
-        // position called again in moveTile
-        //this is why it hovers from the top
         tile.position = [self positionForColumn:touchColumn row:NUM_ROWS];
-        
-        // separate way to track references
         [self addChild:tile];
-        // grid should be updated
+        
         [self moveTile:tile newX:touchColumn newY:availableRow];
+        [self playSound:@"drop.wav"];
         
         // count all neighbors and blow things up
         // delay .2 seconds
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        // why do we need this?
+      
+        // wont update until first move
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             [self countNeighbors];
             [self updateTiles];
         });
+      
+        // TILE FALLS BEFORE COLUMN CAN BE DROPPED
    
-    }
-    else{
-        // NSLog(@"Column Full");
     }
 }
 
@@ -156,17 +152,16 @@ static const CGFloat ANIMATION_DELAY = 0.2f;
 // given column index, what is next available row slot
 // maybe reverse this, creates unnecessary extra loops
 -(int)nextAvailableRow:(int)columnIdx{
-    int idx = -1;
-    for(int i = NUM_ROWS-1; i >= 0; i--){
+    for(int i = 0; i<NUM_ROWS; i++){
         // NSLog(@"%d %d", i, columnIdx);
         // no we counting top down
         // if there isn't a tile, return the next available row slot
         Tile *tile = _gridArray[columnIdx][i];
         if ([tile isEqual:_noTile]) {
-            idx = i;
+            return i;
         }
     }
-    return idx;
+    return -1;
 }
 
 // create a point given column row; did some crazy margin edits to make it fit
@@ -177,6 +172,7 @@ static const CGFloat ANIMATION_DELAY = 0.2f;
 }
 
 // move tile to new spot x = row, y = columns??
+// this is the heart, when next spot is determined, there's a race condition
 - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
     // what happened to old position?
     _gridArray[newX][newY] = tile;
@@ -188,29 +184,45 @@ static const CGFloat ANIMATION_DELAY = 0.2f;
     
     // do calculation for distance on how far to move
     // better heuristic would be by distance! longer distance = more time
-    CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:ANIMATION_DELAY/(tile.row+1) position:newPosition];
+    CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:ANIMATION_DELAY position:newPosition];
     [tile runAction:moveTo];
     
     // play sound effect
-    [self playSound:@"drop.wav"];
+    
 }
 
--(void)playSound:(NSString*)sound{
-    [self scheduleBlock:^(CCTimer *timer){
-        OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
-        [audio playEffect:sound];
-    } delay:SOUND_DELAY];
+// bug here
+-(void)dropColumn:(int)column row:(int)row{
+    // NSLog(@"drop column %d %d", column, row);
+    // give column, move all tiles down 1 to next row...
+    // is there someting about the timing code that messes thisup?
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        for (int j = row; j < [_gridArray[column] count]; j++)
+        {
+            // - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
+            Tile *tile = _gridArray[column][j];
+            // check if tile exists
+            // int availableRow = [self nextAvailableRow:Column];
+            if([tile isEqual:_noTile])
+            {
+                return;
+            }
+            
+            // the redraw is not working for some reason
+            // int availableRow = [self nextAvailableRow:column];
+            //NSLog(@"drop to column %d %d", column, availableRow);
+            // kinda buggy... move tile should have A to B
+            
+            // can i just drop down 1? j -1 hit a zero
+            int nextRow = [self nextAvailableRow:column];
+            [self moveTile:tile newX:column newY:nextRow]; // this assumes nothing is at the moved spot
+            _gridArray[column][j] = _noTile;
+            
+            
+        }
+        
+    });
 }
-
-// creates a new tile  ( when is this used? )
--(Tile*)newTile{
-    Tile *tile = [[Tile alloc] initTile];
-    tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
-    // tile.position = [self positionForColumn:touchColumn row:availableRow];
-    [self addChild:tile]; // i guess so we can see it
-    return tile;
-}
-
 
 // factor this guy something broken with this logic...
 // this guy still buggy
@@ -228,6 +240,8 @@ static const CGFloat ANIMATION_DELAY = 0.2f;
             
             // else
             Tile *currTile = _gridArray[i][j];
+            // need to zero out
+            //currTile.neighborArray = 0
             currTile.sameNeighbors = 0;
             
             // fix logic here, check only 4 spots
@@ -250,10 +264,12 @@ static const CGFloat ANIMATION_DELAY = 0.2f;
                         if([neighbor isEqual:_noTile]){
                             continue;
                         }
-                        if (neighbor.filename == currTile.filename)
+                        if (currTile.filename == neighbor.filename)
                         {
                             // [nsMutArray insertObject:label atIndex:0];
-                            [currTile.neighborArray insertObject:neighbor atIndex:currTile.sameNeighbors];
+                            // [currTile.neighborArray insertObject:neighbor atIndex:currTile.sameNeighbors]; // keeps adding to front
+                            currTile.neighborArray[currTile.sameNeighbors] = neighbor;
+                            NSLog(@"neighbor obj idx add count: %d", currTile.sameNeighbors);
                             currTile.sameNeighbors += 1;
                         }
                     }
@@ -263,16 +279,7 @@ static const CGFloat ANIMATION_DELAY = 0.2f;
     }
 }
 
-// taken from makes games with us game of life
-- (BOOL)isIndexValidForX:(int)x andY:(int)y
-{
-    BOOL isIndexValid = YES;
-    if(x < 0 || y < 0 || x >= NUM_COLUMNS|| y >= NUM_ROWS)
-    {
-        isIndexValid = NO;
-    }
-    return isIndexValid;
-}
+
 
 // need to update logic to find match 3s
 -(void) updateTiles{
@@ -290,13 +297,14 @@ static const CGFloat ANIMATION_DELAY = 0.2f;
             
             // flagging 2 would be 3?
             // have an array... blow up all neighbors
-            if(currTile.sameNeighbors >= 2)
+            if([currTile.neighborArray count] >= 2)
             {
                 // blow them up .. how do i...
-                
+                NSLog(@"neighbors: %ld",[currTile.neighborArray count]);
                 // what if two blow up at the same time?
-                [self playSound:@"break.wav"];
                 [self tileRemoved:currTile];
+                [self playSound:@"break.wav"];
+             
                 [self dropColumn:i row:j+1];
                 // _gridArray[i][j] = _noTile;
                 //2. recursively destroy adjacent 3
@@ -321,41 +329,41 @@ static const CGFloat ANIMATION_DELAY = 0.2f;
 
 // effect and removal from parent
 - (void)tileRemoved:(Tile *)tile {
+    _gridArray[tile.column][tile.row] = _noTile;
     CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
     explosion.autoRemoveOnFinish = TRUE;
     explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
     [tile.parent addChild:explosion];
     [tile removeFromParent];
-    _gridArray[tile.column][tile.row] = _noTile;
+    
 }
 
--(void)dropColumn:(int)column row:(int)row{
-    // NSLog(@"drop column %d %d", column, row);
-    // give column, move all tiles down 1 to next row...
-    // which is column and which is row..
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, SOUND_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        for (int j = row; j < [_gridArray[column] count]; j++)
-        {
-            // - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
-            Tile *tile = _gridArray[column][j];
-            // check if tile exists
-            // int availableRow = [self nextAvailableRow:Column];
-            if([tile isEqual:_noTile])
-            {
-                return;
-            }
-        
-            // the redraw is not working for some reason
-            int availableRow = [self nextAvailableRow:column];
-            //NSLog(@"drop to column %d %d", column, availableRow);
-            // kinda buggy... move tile should have A to B
-            _gridArray[column][j] = _noTile;
-            [self moveTile:tile newX:column newY:availableRow];
-            
-            
-        }
-        
-     });
+-(void)playSound:(NSString*)sound{
+    [self scheduleBlock:^(CCTimer *timer){
+        OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
+        [audio playEffect:sound];
+    } delay:SOUND_DELAY];
 }
+
+// taken from makes games with us game of life
+- (BOOL)isIndexValidForX:(int)x andY:(int)y
+{
+    BOOL isIndexValid = YES;
+    if(x < 0 || y < 0 || x >= NUM_COLUMNS|| y >= NUM_ROWS)
+    {
+        isIndexValid = NO;
+    }
+    return isIndexValid;
+}
+
+// creates a new tile  ( when is this used? )
+-(Tile*)newTile{
+    Tile *tile = [[Tile alloc] initTile];
+    tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
+    // tile.position = [self positionForColumn:touchColumn row:availableRow];
+    [self addChild:tile]; // i guess so we can see it
+    return tile;
+}
+
+
 @end
