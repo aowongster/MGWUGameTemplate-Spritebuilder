@@ -177,6 +177,8 @@ static const CGFloat SOUND_DELAY = 0.3f;
 - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
     // what happened to old position?
     _gridArray[newX][newY] = tile;
+    tile.column = newX;
+    tile.row = newY;
     // _gridArray[oldX][oldY] = _noTile;
     CGPoint newPosition = [self positionForColumn:newX row:newY];
     NSLog(@"new position %f %f", newPosition.x, newPosition.y);
@@ -290,16 +292,25 @@ static const CGFloat SOUND_DELAY = 0.3f;
                 // what if two blow up at the same time?
                 [self playSound:@"break.wav"];
                 [self tileRemoved:currTile];
-                _gridArray[i][j] = _noTile;
-                
-                
+                // _gridArray[i][j] = _noTile;
                 //2. recursively destroy adjacent 3
+                for(int i =0; i< [currTile.neighborArray count];i++)
+                {
+                    // delete all neighbors + drop their columns
+                    if(![currTile.neighborArray isEqual:_noTile])
+                    {
+                        [self tileRemoved:currTile.neighborArray[i]];
+                        // need to remove their grid position as well
+                    }
+                    
+                }
                 
                 //1. need to redraw now.. dropping down all tiles.
                 // drop everything above by 1
                 // create a delay to see what happens for dropping
                 // [self performSelector:@selector(dropColumn:) withObject:i withObject:j+1 afterDelay:1.0];
                 
+                // delay call to drop column
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                     [self dropColumn:i row:j+1];
                 });
@@ -314,17 +325,17 @@ static const CGFloat SOUND_DELAY = 0.3f;
 }
 
 // effect and removal from parent
-- (void)tileRemoved:(CCNode *)tile {
-    
+- (void)tileRemoved:(Tile *)tile {
     CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
     explosion.autoRemoveOnFinish = TRUE;
     explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
     [tile.parent addChild:explosion];
     [tile removeFromParent];
+    _gridArray[tile.column][tile.row] = _noTile;
 }
 
 -(void)dropColumn:(int)column row:(int)row{
-    NSLog(@"drop column %d %d", column, row);
+    // NSLog(@"drop column %d %d", column, row);
     // give column, move all tiles down 1 to next row...
     // which is column and which is row..
     for (int j = row; j < [_gridArray[column] count]; j++)

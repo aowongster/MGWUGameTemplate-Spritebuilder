@@ -15,6 +15,8 @@
 
 @property (nonatomic, assign) BOOL isActive;
 @property (nonatomic, assign) int tileType;
+@property (nonatomic, assign) NSInteger column;
+@property (nonatomic, assign) NSInteger row;
 @property (nonatomic, assign) NSString* filename;
 @property (nonatomic, assign) int sameNeighbors;
 @property (nonatomic) NSMutableArray* neighborArray;
