@@ -337,6 +337,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 }
 
 // effect and removal from parent
+// popping is happening before the Drop! ** FIX
 - (void)tileRemoved:(Tile *)tile {
     _gridArray[tile.column][tile.row] = _noTile;
     CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
