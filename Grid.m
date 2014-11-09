@@ -20,9 +20,9 @@
 
 }
 
-static const NSInteger GRID_SIZE = 6;
+static const NSInteger GRID_SIZE = 7;
 static const NSInteger GRID_ROWS = GRID_SIZE;
-static const NSInteger GRID_COLUMNS = GRID_SIZE;
+static const NSInteger GRID_COLUMNS = GRID_SIZE-2;
 static const CGFloat SOUND_DELAY = 0.3f;
 
 - (void)didLoadFromCCB {
@@ -68,17 +68,17 @@ static const CGFloat SOUND_DELAY = 0.3f;
     
     // [tile performSelector:@selector(cleanup)];
 	// calculate the margin by subtracting the tile sizes from the grid size
-	_tileMarginHorizontal = (self.contentSize.width - (GRID_SIZE * _columnWidth)) / (GRID_SIZE+1);
-	_tileMarginVertical = (self.contentSize.height - (GRID_SIZE * _columnWidth)) / (GRID_SIZE+1);
+	_tileMarginHorizontal = (self.contentSize.width - (GRID_COLUMNS * _columnWidth)) / (GRID_SIZE+1);
+	_tileMarginVertical = (self.contentSize.height - (GRID_ROWS * _columnWidth)) / (GRID_SIZE+1);
 	// set up initial x and y positions
 	float x = _tileMarginHorizontal;
 	float y = _tileMarginVertical;
     
     // grid is off for calculation
-	for (int i = 0; i < GRID_SIZE; i++) {
+	for (int i = 0; i < GRID_COLUMNS; i++) {
 		// iterate through each row
 		x = _tileMarginHorizontal;
-		for (int j = 0; j < GRID_SIZE; j++) {
+		for (int j = 0; j < GRID_ROWS; j++) {
 			//  iterate through each column in the current row
             // add grid
             CCNodeColor *backgroundTile = [CCNodeColor nodeWithColor:[CCColor brownColor]];

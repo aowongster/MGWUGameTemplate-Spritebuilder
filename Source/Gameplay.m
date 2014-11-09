@@ -20,7 +20,7 @@
  
     // how come I dont see this tile?
     _nextTile = _grid.nextTile;
-    _nextTile.position = ccp(25, 400);
+    _nextTile.position = ccp(25, 500);
     [self addChild:_nextTile];
 }
 
