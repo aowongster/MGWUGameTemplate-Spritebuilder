@@ -44,8 +44,8 @@ static const CGFloat SOUND_DELAY = 0.3f;
     
 }
 
+// instantiates _gridArray[column][row]
 -(void) nullGrid{
-    // cleans objects in array
     _gridArray = [NSMutableArray array];
     for (int i = 0; i < NUM_COLUMNS; i++) {
 		_gridArray[i] = [NSMutableArray array];
@@ -53,10 +53,8 @@ static const CGFloat SOUND_DELAY = 0.3f;
 			_gridArray[i][j] = _noTile;
 		}
 	}
-    // need to trigger a redraw
 }
 
-// put logic in here
 - (void)setupBackground
 {
 	// load one tile to read the dimensions
@@ -78,11 +76,11 @@ static const CGFloat SOUND_DELAY = 0.3f;
     NSLog(@"content size: %f %f", self.contentSize.height, self.contentSize.height);
     NSLog(@"%f %f", x, y);
     
-    // grid is off for calculation
-	for (int i = 0; i < NUM_COLUMNS; i++) {
+    // let to right, bottom to top
+	for (int i = 0; i < NUM_ROWS; i++) {
 		// iterate through each row
 		x = _tileMarginHorizontal;
-		for (int j = 0; j < NUM_ROWS; j++) {
+		for (int j = 0; j < NUM_COLUMNS; j++) {
 			//  iterate through each column in the current row
             // add grid
             CCNodeColor *backgroundTile = [CCNodeColor nodeWithColor:[CCColor brownColor]];
