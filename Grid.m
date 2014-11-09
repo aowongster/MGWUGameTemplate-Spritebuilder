@@ -102,19 +102,10 @@ static const CGFloat SOUND_DELAY = 0.3f;
     // NSLog(@"touch Column %d", touchColumn);
     int availableRow = [self nextAvailableRow:touchColumn];
     if(availableRow>=0){
+        NSLog(@"space available, moving");
         // NSLog(@"spot open in column %d", touchColumn);
-        // drop a tile in the spot
-        // create a tile and move to newX newY
-        
-        // self.nextTile -- update the image
-        /**
-         copy the parameters of the tile class...maybe make a method
-         
-         then another method to re instantiate! copy - then a recreate
-         
-        **/
-        
-        // how about copy over the properties
+ 
+        // how about copy over the properties or use a cleaner methods
         Tile *tile = [[Tile alloc] initTile];
         
         tile.filename = self.nextTile.filename;
@@ -140,8 +131,12 @@ static const CGFloat SOUND_DELAY = 0.3f;
         [self moveTile:tile newX:touchColumn newY:availableRow];
         
         // count all neighbors and blow things up
-        [self countNeighbors];
-        [self updateTiles];
+        // delay .2 seconds
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            [self countNeighbors];
+            [self updateTiles];
+        });
+   
     }
     else{
         // NSLog(@"Column Full");
@@ -154,16 +149,19 @@ static const CGFloat SOUND_DELAY = 0.3f;
 
 // given column index, what is next available row slot
 // my columns and rows are all screwy
+// maybe reverse this, creates unnecessary extra loops
 -(int)nextAvailableRow:(int)columnIdx{
-    for(int i = 0; i < GRID_SIZE; i++){
-        
+    int idx = -1;
+    for(int i = GRID_SIZE-1; i >= 0; i--){
+        // NSLog(@"%d %d", i, columnIdx);
+        // no we counting top down
         // if there isn't a tile, return the next available row slot
         Tile *tile = _gridArray[columnIdx][i];
         if ([tile isEqual:_noTile]) {
-            return i;
+            idx = i;
         }
     }
-    return -1;
+    return idx;
 }
 
 // create a point given column row; did some crazy margin edits to make it fit
@@ -206,7 +204,7 @@ static const CGFloat SOUND_DELAY = 0.3f;
 }
 
 
-// factor this guy
+// factor this guy something broken with this logic...
 -(void) countNeighbors{
     // iterate through the rows
     // note that NSArray has a method 'count' that will return the number of elements in the array
@@ -218,15 +216,16 @@ static const CGFloat SOUND_DELAY = 0.3f;
             // access the creature in the cell that corresponds to the current row/column
             
             // tiles is not made yet?
-            if(_gridArray[i][j] == _noTile){
+            if([_gridArray[i][j] isEqual:_noTile]){
                 // NSLog(@"catch null");
                 continue;
             }
+            
             // else
             Tile *currTile = _gridArray[i][j];
-            
             currTile.sameNeighbors = 0;
             
+            // fix logic here, check only 4 spots
             // now examine every cell around the current one
             // go through the row on top of the current cell, the row the cell is in, and the row past the current cell
             for (int x = (i-1); x <= (i+1); x++)
@@ -239,10 +238,11 @@ static const CGFloat SOUND_DELAY = 0.3f;
                     isIndexValid = [self isIndexValidForX:x andY:y];
                     
                     // skip over all cells that are off screen AND the cell that contains the creature we are currently updating
-                    if (!((x == i) && (y == j)) && isIndexValid)
+                    // wow this is ugly, XOR != one parameter must be true otherwise false
+                    if (!((x == i) && (y == j)) && isIndexValid && ((x==i) != (y==j)))
                     {
                         Tile *neighbor = _gridArray[x][y];
-                        if(neighbor == (Tile*)_noTile){
+                        if([neighbor isEqual:_noTile]){
                             continue;
                         }
                         if (neighbor.filename == currTile.filename)
@@ -286,8 +286,8 @@ static const CGFloat SOUND_DELAY = 0.3f;
                 // blow them up .. how do i...
                 
                 // what if two blow up at the same time?
+                // race condition, needs to land before it disappears
                 [self playSound:@"break.wav"];
-                
                 [self tileRemoved:currTile];
                 _gridArray[i][j] = _noTile;
                 
@@ -296,7 +296,13 @@ static const CGFloat SOUND_DELAY = 0.3f;
                 
                 //1. need to redraw now.. dropping down all tiles.
                 // drop everything above by 1
-                [self dropColumn:i row:j+1];
+                // create a delay to see what happens for dropping
+                // [self performSelector:@selector(dropColumn:) withObject:i withObject:j+1 afterDelay:1.0];
+                
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                    [self dropColumn:i row:j+1];
+                });
+                //[self dropColumn:i row:j+1];
                 
                 // 3. tile exploding animation?
             }
@@ -322,16 +328,15 @@ static const CGFloat SOUND_DELAY = 0.3f;
         // int availableRow = [self nextAvailableRow:Column];
         if([tile isEqual:_noTile])
         {
-            continue;
+            return;
         }
-        else
-        {
-            // the redraw is not working for some reason
-            int availableRow = [self nextAvailableRow:column];
-            NSLog(@"drop to column %d %d", column, availableRow);
-            [self moveTile:tile newX:column newY:availableRow];
-            _gridArray[column][j] = (Tile*)_noTile;
-        }
+    
+        // the redraw is not working for some reason
+        int availableRow = [self nextAvailableRow:column];
+        NSLog(@"drop to column %d %d", column, availableRow);
+        [self moveTile:tile newX:column newY:availableRow];
+        _gridArray[column][j] = _noTile;
+        
     }
 }
 @end
