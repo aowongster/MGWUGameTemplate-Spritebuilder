@@ -136,7 +136,7 @@ static const CGFloat SOUND_DELAY = 0.3f;
         // count all neighbors and blow things up
         // delay .2 seconds
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            // [self countNeighbors];
+            [self countNeighbors];
             [self updateTiles];
         });
    
@@ -262,7 +262,7 @@ static const CGFloat SOUND_DELAY = 0.3f;
 - (BOOL)isIndexValidForX:(int)x andY:(int)y
 {
     BOOL isIndexValid = YES;
-    if(x < 0 || y < 0 || x >= NUM_ROWS|| y >= NUM_COLUMNS)
+    if(x < 0 || y < 0 || x >= NUM_COLUMNS|| y >= NUM_ROWS)
     {
         isIndexValid = NO;
     }
@@ -288,7 +288,6 @@ static const CGFloat SOUND_DELAY = 0.3f;
                 // blow them up .. how do i...
                 
                 // what if two blow up at the same time?
-                // race condition, needs to land before it disappears
                 [self playSound:@"break.wav"];
                 [self tileRemoved:currTile];
                 _gridArray[i][j] = _noTile;
