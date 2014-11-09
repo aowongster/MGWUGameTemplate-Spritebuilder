@@ -66,7 +66,7 @@ static const CGFloat SOUND_DELAY = 0.3f;
     
     // this hotfix is needed because of issue #638 in Cocos2D 3.1 / SB 1.1 (https://github.com/spritebuilder/SpriteBuilder/issues/638)
     
-    [tile performSelector:@selector(cleanup)];
+    // [tile performSelector:@selector(cleanup)];
 	// calculate the margin by subtracting the tile sizes from the grid size
 	_tileMarginHorizontal = (self.contentSize.width - (GRID_SIZE * _columnWidth)) / (GRID_SIZE+1);
 	_tileMarginVertical = (self.contentSize.height - (GRID_SIZE * _columnWidth)) / (GRID_SIZE+1);
@@ -100,8 +100,6 @@ static const CGFloat SOUND_DELAY = 0.3f;
     // make a move
     int touchColumn = [self columnForTouchPosition:touchLocation];
     // NSLog(@"touch Column %d", touchColumn);
-    
-    // returns an idx
     int availableRow = [self nextAvailableRow:touchColumn];
     if(availableRow>=0){
         // NSLog(@"spot open in column %d", touchColumn);
@@ -134,22 +132,20 @@ static const CGFloat SOUND_DELAY = 0.3f;
         tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
         
         // position called again in moveTile
+        //this is why it hovers from the top
         tile.position = [self positionForColumn:touchColumn row:GRID_SIZE];
         
         // separate way to track references
         [self addChild:tile];
         [self moveTile:tile newX:touchColumn newY:availableRow];
         
-        // count neighbors and blow things up
+        // count all neighbors and blow things up
         [self countNeighbors];
         [self updateTiles];
     }
     else{
         // NSLog(@"Column Full");
     }
-    //get the Creature at that location
-    // Tile *tile = [self tileForTouchPosition:touchLocation];
-    // tile.isActive = !tile.isActive;
 }
 
 -(int)columnForTouchPosition:(CGPoint)touchPosition{
@@ -170,21 +166,26 @@ static const CGFloat SOUND_DELAY = 0.3f;
     return -1;
 }
 
+// create a point given column row; did some crazy margin edits to make it fit
+- (CGPoint)positionForColumn:(NSInteger)column row:(NSInteger)row {
+    NSInteger x = _tileMarginHorizontal + column * (_tileMarginHorizontal + _columnWidth);
+    NSInteger y = (_tileMarginVertical) + row * (_tileMarginVertical + _columnHeight);
+    return CGPointMake(x,y);
+}
+
 // move tile to new spot x = row, y = columns??
 - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
+    // what happened to old position?
     _gridArray[newX][newY] = tile;
     // _gridArray[oldX][oldY] = _noTile;
     CGPoint newPosition = [self positionForColumn:newX row:newY];
+    NSLog(@"new position %f %f", newPosition.x, newPosition.y);
     
     // do calculation for distance on how far to move
     CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.2f position:newPosition];
     [tile runAction:moveTo];
     
-    
     // play sound effect
-    
-    // - (CCTimer *)scheduleOnce:(SEL)selector delay:(CCTime)delay
-    // [self scheduleOnce: @selector(playDropSound) delay:0.3f];
     [self playSound:@"drop.wav"];
 }
 
@@ -195,6 +196,7 @@ static const CGFloat SOUND_DELAY = 0.3f;
     } delay:SOUND_DELAY];
 }
 
+// creates a new tile  ( when is this used? )
 -(Tile*)newTile{
     Tile *tile = [[Tile alloc] initTile];
     tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
@@ -203,12 +205,6 @@ static const CGFloat SOUND_DELAY = 0.3f;
     return tile;
 }
 
-// create a point given column row; did some crazy margin edits to make it fit
-- (CGPoint)positionForColumn:(NSInteger)column row:(NSInteger)row {
-	NSInteger x = _tileMarginHorizontal + column * (_tileMarginHorizontal + _columnWidth);
-	NSInteger y = (_tileMarginVertical) + row * (_tileMarginVertical + _columnHeight);
-	return CGPointMake(x,y);
-}
 
 // factor this guy
 -(void) countNeighbors{
@@ -288,15 +284,19 @@ static const CGFloat SOUND_DELAY = 0.3f;
             if(currTile.sameNeighbors >= 2)
             {
                 // blow them up .. how do i...
+                
+                // what if two blow up at the same time?
                 [self playSound:@"break.wav"];
                 
                 [self tileRemoved:currTile];
                 _gridArray[i][j] = _noTile;
                 
+                
                 //2. recursively destroy adjacent 3
                 
                 //1. need to redraw now.. dropping down all tiles.
-                //[self moveDropColumn:column];
+                // drop everything above by 1
+                [self dropColumn:i row:j+1];
                 
                 // 3. tile exploding animation?
             }
@@ -310,7 +310,28 @@ static const CGFloat SOUND_DELAY = 0.3f;
     [tile removeFromParent];
 }
 
--(void)dropColumn:(NSInteger)column{
+-(void)dropColumn:(int)column row:(int)row{
+    NSLog(@"drop column %d %d", column, row);
     // give column, move all tiles down 1 to next row...
+    // which is column and which is row..
+    for (int j = row; j < [_gridArray[column] count]; j++)
+    {
+        // - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
+        Tile *tile = _gridArray[column][j];
+        // check if tile exists
+        // int availableRow = [self nextAvailableRow:Column];
+        if([tile isEqual:_noTile])
+        {
+            continue;
+        }
+        else
+        {
+            // the redraw is not working for some reason
+            int availableRow = [self nextAvailableRow:column];
+            NSLog(@"drop to column %d %d", column, availableRow);
+            [self moveTile:tile newX:column newY:availableRow];
+            _gridArray[column][j] = (Tile*)_noTile;
+        }
+    }
 }
 @end
