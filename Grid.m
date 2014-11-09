@@ -209,15 +209,11 @@ static const CGFloat SOUND_DELAY = 0.3f;
 // factor this guy something broken with this logic...
 -(void) countNeighbors{
     // iterate through the rows
-    // note that NSArray has a method 'count' that will return the number of elements in the array
     for (int i = 0; i < [_gridArray count]; i++)
     {
         // iterate through all the columns for a given row
         for (int j = 0; j < [_gridArray[i] count]; j++)
         {
-            // access the creature in the cell that corresponds to the current row/column
-            
-            // tiles is not made yet?
             if([_gridArray[i][j] isEqual:_noTile]){
                 // NSLog(@"catch null");
                 continue;
@@ -250,6 +246,7 @@ static const CGFloat SOUND_DELAY = 0.3f;
                         if (neighbor.filename == currTile.filename)
                         {
                             currTile.sameNeighbors += 1;
+                            //currTile.neighborArray [ add neighbor]
                         }
                     }
                 }
@@ -269,8 +266,9 @@ static const CGFloat SOUND_DELAY = 0.3f;
     return isIndexValid;
 }
 
+// need to update logic to find match 3s
 -(void) updateTiles{
-    // iterate over all tiles and blow up 4 of a kind.
+    // iterate over all tiles and blow up 3 of a kind.
     for (int i = 0; i < [_gridArray count]; i++)
     {
         // iterate through all the columns for a given row
@@ -283,6 +281,7 @@ static const CGFloat SOUND_DELAY = 0.3f;
             Tile *currTile = _gridArray[i][j];
             
             // flagging 2 would be 3?
+            // have an array... blow up all neighbors
             if(currTile.sameNeighbors >= 2)
             {
                 // blow them up .. how do i...
@@ -313,14 +312,12 @@ static const CGFloat SOUND_DELAY = 0.3f;
     }
 }
 
+// effect and removal from parent
 - (void)tileRemoved:(CCNode *)tile {
     
     CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
-    // make the particle effect clean itself up, once it is completed
     explosion.autoRemoveOnFinish = TRUE;
-    // place the particle effect on the seals position
     explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
-    // add the particle effect to the same node the seal is on
     [tile.parent addChild:explosion];
     [tile removeFromParent];
 }

@@ -28,8 +28,9 @@ static const CGFloat  spriteScale = .5f;
                   @"stones/grey18.png",
                   nil];
     
-    self.tileType = arc4random_uniform([_tileNames count] -1);
+    self.tileType = arc4random_uniform([_tileNames count]-1.0);
     self.filename = _tileNames[self.tileType];
+    self.neighborArray =[NSMutableArray array];
     // self.sameNeighbors = 0;
     self = [super initWithImageNamed:self.filename];
     
@@ -49,7 +50,7 @@ static const CGFloat  spriteScale = .5f;
 
 - (NSString*) getNewFilename{
     
-    int rand = arc4random_uniform([_tileNames count] -1);
+    int rand = arc4random_uniform([_tileNames count] -1.0);
     return _tileNames[rand];
     
 }
@@ -65,7 +66,7 @@ static const CGFloat  spriteScale = .5f;
                   @"stones/grey18.png",
                   nil];
     
-    self.tileType = arc4random_uniform([_tileNames count] -1);
+    self.tileType = arc4random_uniform([_tileNames count] -1.0);
     self.filename = _tileNames[self.tileType];
     [self setTexture:[[CCSprite spriteWithImageNamed:self.filename]texture]];
     

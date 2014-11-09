@@ -17,6 +17,7 @@
 @property (nonatomic, assign) int tileType;
 @property (nonatomic, assign) NSString* filename;
 @property (nonatomic, assign) int sameNeighbors;
+@property (nonatomic, assign) NSMutableArray* neighborArray;
 
 - (id)initTile;
 -(void)randomProperties;
