@@ -194,7 +194,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 }
 
 
-// bug here
+// bug here FIX
 -(void)dropColumn:(int)column row:(int)row{
     // NSLog(@"drop column %d %d", column, row);
     // give column, move all tiles down 1 to next row...
@@ -228,8 +228,6 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     });
 }
 
-// factor this guy something broken with this logic...
-// this guy still buggy, fix to count 4's maybe need different algo
 -(void) countNeighbors{
     // iterate through the rows
     for (int i = 0; i < [_gridArray count]; i++)
@@ -248,8 +246,6 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
             //currTile.neighborArray = 0
             currTile.sameNeighbors = 0;
             
-            // fix logic here, check only 4 spots
-            // now examine every cell around the current one
             // go through the row on top of the current cell, the row the cell is in, and the row past the current cell
             for (int x = (i-1); x <= (i+1); x++)
             {
@@ -282,9 +278,9 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
             // out of the check
             if(currTile.sameNeighbors >= 2)
             {
-                // mark neighbors here
+                // mark neighbors here // I think this works with 4!
                 currTile.remove = YES;
-                [self killNeighbors:currTile];
+                [self removeNeighbors:currTile];
             }
             
         }
@@ -330,7 +326,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
                 [self dropColumn:i row:j+1];
                 // _gridArray[i][j] = _noTile;
                 //2. recursively destroy adjacent 3
-                [self killNeighbors:currTile];
+                [self removeNeighbors:currTile];
             }
              **/
         }
@@ -338,11 +334,11 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     }
     // run a sweeping mass kill all the same time instead of in the loops?
     // redraw game state?
-    // drop columns here...
+    // drop columns here... FIX
 }
 
 // give tile remove its neighbors
--(void) killNeighbors:(Tile*)tile{
+-(void) removeNeighbors:(Tile*)tile{
     for(int i =0; i< [tile.neighborArray count];i++)
     {
         // delete all neighbors + drop their columns
@@ -352,7 +348,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
             
             //[self removeTile:neighborTile];
             neighborTile.remove = YES;
-            [self dropColumn:neighborTile.column row:neighborTile.row+1];
+            //[self dropColumn:neighborTile.column row:neighborTile.row+1];
             
             // need to remove their grid position as well
             // comboes are not workin
