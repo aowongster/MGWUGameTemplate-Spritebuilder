@@ -16,6 +16,7 @@
 	CGFloat _tileMarginHorizontal;
     
     NSMutableArray *_gridArray;
+    NSMutableArray *_dropColumns;
 	NSNull *_noTile;
 
 }
@@ -34,6 +35,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 - (void)didLoadFromCCB {
     
     _noTile = [NSNull null];
+    _dropColumns = [NSMutableArray array]; // [myIntegers addObject:[NSNumber numberWithInteger:i]];
 	
     // draws brown squares
     [self setupBackground];
@@ -125,7 +127,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
         [self addChild:tile];
         
         [self moveTile:tile newX:touchColumn newY:availableRow];
-    
+        [self playSound:@"drop.wav"];
         
         // count all neighbors and blow things up
         // delay .2 seconds
@@ -142,30 +144,73 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     }
 }
 
--(int)columnForTouchPosition:(CGPoint)touchPosition{
-    return touchPosition.x / ( _columnWidth + _tileMarginHorizontal);
-}
-
-// given column index, what is next available row slot
-// maybe reverse this, creates unnecessary extra loops
--(int)nextAvailableRow:(int)columnIdx{
-    for(int i = 0; i<NUM_ROWS; i++){
-        // NSLog(@"%d %d", i, columnIdx);
-        // no we counting top down
-        // if there isn't a tile, return the next available row slot
-        Tile *tile = _gridArray[columnIdx][i];
-        if ([tile isEqual:_noTile]) {
-            return i;
+// need to update logic to find match 3s
+// recursively calls itsself?
+-(void) updateTiles{
+    // iterate over all tiles and blow up 3 of a kind.
+    // better more flexible way to iterate... vs hard code
+    for (int i = 0; i < [_gridArray count]; i++)
+    {
+        // iterate through all the columns for a given row
+        for (int j = 0; j < [_gridArray[i] count]; j++)
+        {
+            Tile *currTile = _gridArray[i][j];
+            if([currTile isEqual:_noTile]){
+                // NSLog(@"catch null");
+                continue;
+            }
+            
+            if(currTile.remove){
+                //label column to drop
+                // [myIntegers addObject:[NSNumber numberWithInteger:i]];
+                // iterate and pull [[myIntegers objectAtIndex:3] integerValue]
+                [_dropColumns addObject:[NSNumber numberWithInteger:currTile.column]];
+                [self removeTile:currTile];
+                
+                
+            }
+            
+            // potentially blowup marked tiles here
+            
+            
+            // flagging 2 would be 3?
+            // have an array... blow up all neighbors
+            /**
+             if([currTile.neighborArray count] >= 2)
+             {
+             // blow them up .. how do i...
+             // NSLog(@"neighbors: %ld",[currTile.neighborArray count]);
+             // what if two blow up at the same time?
+             [self removeTile:currTile];
+             [self playSound:@"break.wav"];
+             
+             [self dropColumn:i row:j+1];
+             // _gridArray[i][j] = _noTile;
+             //2. recursively destroy adjacent 3
+             [self removeNeighbors:currTile];
+             }
+             **/
         }
+        
     }
-    return -1;
-}
-
-// create a point given column row; did some crazy margin edits to make it fit
-- (CGPoint)positionForColumn:(NSInteger)column row:(NSInteger)row {
-    NSInteger x = _tileMarginHorizontal + column * (_tileMarginHorizontal + _columnWidth);
-    NSInteger y = (_tileMarginVertical) + row * (_tileMarginVertical + _columnHeight);
-    return CGPointMake(x,y);
+    // run a sweeping mass kill all the same time instead of in the loops?
+    // redraw game state?
+    // drop columns here... FIX
+    BOOL columnDropped = NO;
+    for (int i = 0; i< [_dropColumns count]; i++){
+        columnDropped = YES;
+        // drop em like they are hot
+        // iterate and pull [[myIntegers objectAtIndex:3] integerValue]
+        // really helps to know the row.. if its in the middle.
+        [self dropColumn:[[_dropColumns objectAtIndex:i] integerValue]];
+        [_dropColumns removeObjectAtIndex:i];
+        // now i need to update the column..
+    }
+    // play drop sound
+    if(columnDropped){
+        // [self playSound:@"drop.wav"];
+    }
+    
 }
 
 // move tile to new spot x = row, y = columns??
@@ -185,7 +230,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     [tile runAction:moveTo];
     
     // play sound effect
-    [self playSound:@"drop.wav"];
+
     
 }
 
@@ -194,6 +239,11 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 }
 
 
+// let's overload without a row..
+-(void)dropColumn:(int)column {
+    [self dropColumn:column row:0];
+}
+// logic for column dropping not good
 // bug here FIX
 -(void)dropColumn:(int)column row:(int)row{
     // NSLog(@"drop column %d %d", column, row);
@@ -208,23 +258,21 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
             // int availableRow = [self nextAvailableRow:Column];
             if([tile isEqual:_noTile])
             {
-                return;
+                // now we scanning them all
+                continue;
             }
             
-            // the redraw is not working for some reason
-            // int availableRow = [self nextAvailableRow:column];
-            //NSLog(@"drop to column %d %d", column, availableRow);
-            // kinda buggy... move tile should have A to B
-            
-            // can i just drop down 1? j -1 hit a zero
+            //tile exists: index is valid and empty)
+            // could go out of bounds here
+          
             int nextRow = [self nextAvailableRow:column];
+            // check if spot is open below. then move
             [self moveTile:tile newX:column newY:nextRow delay:DROP_DELAY]; // this assumes nothing is at the moved spot
             _gridArray[column][j] = _noTile;
-            
+    
             
         }
-        [self playSound:@"drop.wav"];
-        
+  
     });
 }
 
@@ -289,52 +337,44 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 
 
 
-// need to update logic to find match 3s
-// recursively calls itsself?
--(void) updateTiles{
-    // iterate over all tiles and blow up 3 of a kind.
-    // better more flexible way to iterate... vs hard code
-    for (int i = 0; i < [_gridArray count]; i++)
-    {
-        // iterate through all the columns for a given row
-        for (int j = 0; j < [_gridArray[i] count]; j++)
-        {
-            Tile *currTile = _gridArray[i][j];
-            if([currTile isEqual:_noTile]){
-                // NSLog(@"catch null");
-                continue;
-            }
-            
-            if(currTile.remove){
-                [self removeTile:currTile];
-            }
-            
-            // potentially blowup marked tiles here
-            
-            
-            // flagging 2 would be 3?
-            // have an array... blow up all neighbors
-            /**
-            if([currTile.neighborArray count] >= 2)
-            {
-                // blow them up .. how do i...
-                // NSLog(@"neighbors: %ld",[currTile.neighborArray count]);
-                // what if two blow up at the same time?
-                [self removeTile:currTile];
-                [self playSound:@"break.wav"];
-             
-                [self dropColumn:i row:j+1];
-                // _gridArray[i][j] = _noTile;
-                //2. recursively destroy adjacent 3
-                [self removeNeighbors:currTile];
-            }
-             **/
+-(int)columnForTouchPosition:(CGPoint)touchPosition{
+    return touchPosition.x / ( _columnWidth + _tileMarginHorizontal);
+}
+
+// given column index, what is next available row slot
+// maybe reverse this, creates unnecessary extra loops
+-(int)nextAvailableRow:(int)columnIdx{
+    for(int i = 0; i<NUM_ROWS; i++){
+        // NSLog(@"%d %d", i, columnIdx);
+        // no we counting top down
+        // if there isn't a tile, return the next available row slot
+        Tile *tile = _gridArray[columnIdx][i];
+        if ([tile isEqual:_noTile]) {
+            return i;
         }
-        
     }
-    // run a sweeping mass kill all the same time instead of in the loops?
-    // redraw game state?
-    // drop columns here... FIX
+    return -1;
+}
+
+// create a point given column row; did some crazy margin edits to make it fit
+- (CGPoint)positionForColumn:(NSInteger)column row:(NSInteger)row {
+    NSInteger x = _tileMarginHorizontal + column * (_tileMarginHorizontal + _columnWidth);
+    NSInteger y = (_tileMarginVertical) + row * (_tileMarginVertical + _columnHeight);
+    return CGPointMake(x,y);
+}
+
+
+
+// effect and removal from parent
+// popping is happening before the Drop! ** FIX
+- (void)removeTile:(Tile *)tile {
+    _gridArray[tile.column][tile.row] = _noTile;
+    CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
+    explosion.autoRemoveOnFinish = TRUE;
+    explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
+    [tile.parent addChild:explosion];
+    [tile removeFromParent];
+    
 }
 
 // give tile remove its neighbors
@@ -355,18 +395,6 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
         }
         
     }
-}
-
-// effect and removal from parent
-// popping is happening before the Drop! ** FIX
-- (void)removeTile:(Tile *)tile {
-    _gridArray[tile.column][tile.row] = _noTile;
-    CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
-    explosion.autoRemoveOnFinish = TRUE;
-    explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
-    [tile.parent addChild:explosion];
-    [tile removeFromParent];
-    
 }
 
 -(void)playSound:(NSString*)sound{
