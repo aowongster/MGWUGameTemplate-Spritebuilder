@@ -282,10 +282,9 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
             // out of the check
             if(currTile.sameNeighbors >= 2)
             {
+                // mark neighbors here
                 currTile.remove = YES;
-            }
-            else{
-                currTile.remove = NO;
+                [self killNeighbors:currTile];
             }
             
         }
@@ -298,27 +297,34 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 // recursively calls itsself?
 -(void) updateTiles{
     // iterate over all tiles and blow up 3 of a kind.
+    // better more flexible way to iterate... vs hard code
     for (int i = 0; i < [_gridArray count]; i++)
     {
         // iterate through all the columns for a given row
         for (int j = 0; j < [_gridArray[i] count]; j++)
         {
-            if([_gridArray[i][j] isEqual:_noTile]){
+            Tile *currTile = _gridArray[i][j];
+            if([currTile isEqual:_noTile]){
                 // NSLog(@"catch null");
                 continue;
             }
             
+            if(currTile.remove){
+                [self removeTile:currTile];
+            }
+            
             // potentially blowup marked tiles here
-            Tile *currTile = _gridArray[i][j];
+            
             
             // flagging 2 would be 3?
             // have an array... blow up all neighbors
+            /**
             if([currTile.neighborArray count] >= 2)
             {
                 // blow them up .. how do i...
                 // NSLog(@"neighbors: %ld",[currTile.neighborArray count]);
                 // what if two blow up at the same time?
-                [self tileRemoved:currTile];
+                [self removeTile:currTile];
                 [self playSound:@"break.wav"];
              
                 [self dropColumn:i row:j+1];
@@ -326,10 +332,13 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
                 //2. recursively destroy adjacent 3
                 [self killNeighbors:currTile];
             }
+             **/
         }
         
     }
     // run a sweeping mass kill all the same time instead of in the loops?
+    // redraw game state?
+    // drop columns here...
 }
 
 // give tile remove its neighbors
@@ -341,7 +350,8 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
         if(![neighborTile isEqual:_noTile])
         {
             
-            [self tileRemoved:neighborTile];
+            //[self removeTile:neighborTile];
+            neighborTile.remove = YES;
             [self dropColumn:neighborTile.column row:neighborTile.row+1];
             
             // need to remove their grid position as well
@@ -353,7 +363,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 
 // effect and removal from parent
 // popping is happening before the Drop! ** FIX
-- (void)tileRemoved:(Tile *)tile {
+- (void)removeTile:(Tile *)tile {
     _gridArray[tile.column][tile.row] = _noTile;
     CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
     explosion.autoRemoveOnFinish = TRUE;
