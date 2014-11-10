@@ -61,10 +61,6 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 
 - (void)setupBackground
 {
-	// load one tile to read the dimensions
-	// CCNode *tile = [CCBReader load:@"backgroundTile"];
-    
-    // these guys are fixed, reports 0 // hard code not scalable
     _columnWidth = TILE_SIZE;
     _columnHeight = TILE_SIZE;
     
@@ -283,6 +279,15 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
                     }
                 }
             }
+            // out of the check
+            if(currTile.sameNeighbors >= 2)
+            {
+                currTile.remove = YES;
+            }
+            else{
+                currTile.remove = NO;
+            }
+            
         }
     }
 }
@@ -290,6 +295,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 
 
 // need to update logic to find match 3s
+// recursively calls itsself?
 -(void) updateTiles{
     // iterate over all tiles and blow up 3 of a kind.
     for (int i = 0; i < [_gridArray count]; i++)
@@ -301,6 +307,8 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
                 // NSLog(@"catch null");
                 continue;
             }
+            
+            // potentially blowup marked tiles here
             Tile *currTile = _gridArray[i][j];
             
             // flagging 2 would be 3?
@@ -308,7 +316,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
             if([currTile.neighborArray count] >= 2)
             {
                 // blow them up .. how do i...
-                NSLog(@"neighbors: %ld",[currTile.neighborArray count]);
+                // NSLog(@"neighbors: %ld",[currTile.neighborArray count]);
                 // what if two blow up at the same time?
                 [self tileRemoved:currTile];
                 [self playSound:@"break.wav"];
@@ -316,21 +324,28 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
                 [self dropColumn:i row:j+1];
                 // _gridArray[i][j] = _noTile;
                 //2. recursively destroy adjacent 3
-                for(int i =0; i< [currTile.neighborArray count];i++)
-                {
-                    // delete all neighbors + drop their columns
-                    Tile* neighborTile = currTile.neighborArray[i];
-                    if(![neighborTile isEqual:_noTile])
-                    {
-                        [self tileRemoved:neighborTile];
-                        [self dropColumn:neighborTile.column row:neighborTile.row+1];
-                       
-                        // need to remove their grid position as well
-                        // comboes are not workin
-                    }
-                    
-                }
+                [self killNeighbors:currTile];
             }
+        }
+        
+    }
+    // run a sweeping mass kill all the same time instead of in the loops?
+}
+
+// give tile remove its neighbors
+-(void) killNeighbors:(Tile*)tile{
+    for(int i =0; i< [tile.neighborArray count];i++)
+    {
+        // delete all neighbors + drop their columns
+        Tile* neighborTile = tile.neighborArray[i];
+        if(![neighborTile isEqual:_noTile])
+        {
+            
+            [self tileRemoved:neighborTile];
+            [self dropColumn:neighborTile.column row:neighborTile.row+1];
+            
+            // need to remove their grid position as well
+            // comboes are not workin
         }
         
     }

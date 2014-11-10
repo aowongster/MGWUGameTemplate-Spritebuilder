@@ -13,7 +13,7 @@
 
 }
 
-@property (nonatomic, assign) BOOL isActive;
+@property (nonatomic, assign) BOOL remove;
 @property (nonatomic, assign) int tileType;
 @property (nonatomic, assign) NSInteger column;
 @property (nonatomic, assign) NSInteger row;

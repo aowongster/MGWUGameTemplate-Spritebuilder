@@ -37,7 +37,7 @@ static const CGFloat  spriteScale = .5f;
     // not sure why image has to be setup out here
     // self = [super init];
     if (self) {
-        self.isActive = YES; // active for now at least
+        self.remove = NO; // active for now at least
         // move this out?
         [self setScale:spriteScale];
         [self setAnchorPoint:ccp(0,0)];
@@ -72,10 +72,6 @@ static const CGFloat  spriteScale = .5f;
     
 }
 
-- (void)setIsActive:(BOOL)newState {
-    _isActive = newState;
-    self.visible = _isActive;
-}
 
 
 
