@@ -29,6 +29,8 @@
     // update the texture of _nextTile if it changes!
     [_nextTile setTexture:[[CCSprite spriteWithImageNamed:_grid.nextTile.filename]texture]];
     // [yourSprite setTexture:[[CCSprite spriteWithFile:@"yourImage.png"]texture]];
+    
+    // i have access to the grid, i can try updating here...
 }
 
 // wipes the grid

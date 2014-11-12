@@ -8,7 +8,6 @@
 
 #import "Grid.h"
 
-
 @implementation Grid {
 	CGFloat _columnWidth;
 	CGFloat _columnHeight;
@@ -130,11 +129,8 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
         [self moveTile:tile newX:touchColumn newY:availableRow];
         [self playSound:@"drop.wav"];
         
-        // count all neighbors and blow things up
-        // delay .2 seconds
-        // why do we need this?
-      
         // wont update until first move
+        // maybe put this in update loop !! hmmmm
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             [self countNeighbors];
             [self updateTiles];
@@ -171,7 +167,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
                 NSLog(@"adding drop column %ld", currTile.column);
                 [self removeTile:currTile];
                 _brokeTile = YES;
-                   
+                
             }
         }
         
@@ -411,6 +407,5 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     [self addChild:tile]; // i guess so we can see it
     return tile;
 }
-
 
 @end
