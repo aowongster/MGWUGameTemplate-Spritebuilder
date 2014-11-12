@@ -164,7 +164,7 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
                 [self updateTiles];
             });
              **/
-            
+            NSLog(@"finished update");
         }while(_brokeTile);
       
         // TILE FALLS BEFORE COLUMN CAN BE DROPPED
@@ -178,8 +178,7 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
     // iterate over all tiles and blow up 3 of a kind.
     // better more flexible way to iterate... vs hard code
     _brokeTile = NO;
- 
-        
+    NSLog(@"starting update");
     for (int i = 0; i < [_gridArray count]; i++)
     {
         // iterate through all the columns for a given row
@@ -254,7 +253,7 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
 -(void)dropColumn:(int)column row:(int)row{
     
         int nextRow = [self nextAvailableRow:column];
-        for (int j = nextRow+1; j < [_gridArray[column] count]; j++)
+        for (int j = nextRow+1; j < NUM_ROWS; j++)
         {
             Tile *tile = _gridArray[column][j];
             if([tile isEqual:_noTile])
@@ -271,9 +270,20 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
             // wrap a delay here???
             // [self scheduleBlock:^(CCTimer *timer){ // FIX
     
-            [self moveTile:tile newX:column newY:nextRowNow delay:DROP_DELAY]; // this assumes nothing is at the moved spot
-
+            //[self moveTile:tile newX:column newY:nextRowNow delay:DROP_DELAY];
+            // shouldnt be updating in the middle of the loop
+            _gridArray[column][nextRowNow] = tile;
+            tile.column = column;
+            tile.row = nextRowNow;
             _gridArray[column][j] = _noTile;
+            
+            [self scheduleBlock:^(CCTimer *timer){
+                CGPoint newPosition = [self positionForColumn:column row:nextRowNow];
+                CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:ANIMATION_DELAY position:newPosition];
+                [tile runAction:moveTo];
+            }delay: UPDATE_DELAY];
+            
+            
     
             
         }
@@ -344,6 +354,7 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
 // popping is happening before the Drop! ** FIX
 - (void)removeTile:(Tile *)tile {
     _gridArray[tile.column][tile.row] = _noTile;
+    
     [self scheduleBlock:^(CCTimer *timer){
         CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
         explosion.autoRemoveOnFinish = TRUE;
