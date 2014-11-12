@@ -18,6 +18,7 @@
     NSMutableArray *_dropColumns;
 	NSNull *_noTile;
     BOOL _brokeTile;
+    int _numBreaks;
 
 }
 
@@ -129,12 +130,17 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
         [self moveTile:tile newX:touchColumn newY:availableRow];
         [self playSound:@"drop.wav"];
         
-        // wont update until first move
         // maybe put this in update loop !! hmmmm
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            [self countNeighbors];
-            [self updateTiles];
-        });
+        _numBreaks = 0;
+        _brokeTile = NO;
+        do{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                [self countNeighbors];
+                // continuously update while there are changes
+                [self updateTiles];
+            });
+            
+        }while(_brokeTile);
       
         // TILE FALLS BEFORE COLUMN CAN BE DROPPED
    

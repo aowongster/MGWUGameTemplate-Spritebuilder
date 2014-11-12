@@ -16,22 +16,13 @@
     
 }
 static const CGFloat  spriteScale = .5f;
+static const int DIFFICULTY = 2;
+
+// this needs to be rewritten.
 
 - (instancetype)initTile{
-    // init with random image?
-    _tileNames = [NSArray arrayWithObjects:
-                  @"stones/blue1.png",
-                  @"stones/brown14.png",
-                  @"stones/red10.png",
-                  @"stones/grey9.png",
-                  @"stones/orange5.png",
-                  @"stones/grey18.png",
-                  nil];
-    
-    self.tileType = arc4random_uniform([_tileNames count]-1.0);
-    self.filename = _tileNames[self.tileType];
+    [self randomProperties];
     self.neighborArray = [[NSMutableArray alloc] init];
-    // self.sameNeighbors = 0;
     self = [super initWithImageNamed:self.filename];
     
     // not sure why image has to be setup out here
@@ -39,6 +30,7 @@ static const CGFloat  spriteScale = .5f;
     if (self) {
         self.remove = NO; // active for now at least
         // move this out?
+        
         [self setScale:spriteScale];
         [self setAnchorPoint:ccp(0,0)];
         // [self randomProperties];
@@ -47,14 +39,6 @@ static const CGFloat  spriteScale = .5f;
     
     return self;
 }
-
-- (NSString*) getNewFilename{
-    
-    int rand = arc4random_uniform([_tileNames count] -1.0);
-    return _tileNames[rand];
-    
-}
-
 -(void) randomProperties {
     // init with random image?
     _tileNames = [NSArray arrayWithObjects:
@@ -66,9 +50,9 @@ static const CGFloat  spriteScale = .5f;
                   @"stones/grey18.png",
                   nil];
     
-    self.tileType = arc4random_uniform([_tileNames count] -1.0);
+    self.tileType = arc4random_uniform((int)[_tileNames count] -DIFFICULTY);
     self.filename = _tileNames[self.tileType];
-    [self setTexture:[[CCSprite spriteWithImageNamed:self.filename]texture]];
+    // [self setTexture:[[CCSprite spriteWithImageNamed:self.filename]texture]];
     
 }
 
