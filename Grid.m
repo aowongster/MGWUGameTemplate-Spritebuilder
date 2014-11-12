@@ -29,8 +29,8 @@ static const NSInteger TILE_SIZE = 45;
 
 static const CGFloat ANIMATION_DELAY = 0.25f;
 static const CGFloat SOUND_DELAY = ANIMATION_DELAY + 0.1f;
-static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.1f;
-static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
+static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
+static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
 
 // x 320 x 554
 
@@ -137,6 +137,9 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
         _numBreaks = 0;
         _brokeTile = NO;
         do{
+            // instant pop before drop animation completes
+            [self countNeighbors];
+            [self updateTiles];
             
             /**
             [self scheduleBlock:^(CCTimer *timer){
@@ -144,6 +147,8 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
                 [self updateTiles];
             } delay: UPDATE_DELAY];
             **/
+            
+            /**
             dispatch_sync(_queue, ^{
                 [self scheduleBlock:^(CCTimer *timer){
                 [self countNeighbors];
@@ -151,6 +156,8 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
                     
                     } delay: UPDATE_DELAY];
             });
+            **/
+            
             /**
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                 [self countNeighbors];
@@ -219,13 +226,10 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 }
 
 // move tile to new spot x = row, y = columns??
-// this is the heart, when next spot is determined, there's a race condition
 - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY delay:(CGFloat)delay {
-    // what happened to old position?
     _gridArray[newX][newY] = tile;
     tile.column = newX;
     tile.row = newY;
-    // _gridArray[oldX][oldY] = _noTile;
     CGPoint newPosition = [self positionForColumn:newX row:newY];
     // NSLog(@"tile: %d %d ,new position %f %f", newX, newY,newPosition.x, newPosition.y);
     
@@ -233,9 +237,6 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     // better heuristic would be by distance! longer distance = more time
     CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:delay position:newPosition];
     [tile runAction:moveTo];
-    
-    // play sound effect
-
     
 }
 
@@ -249,10 +250,10 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     [self dropColumn:column row:0];
 }
 
+// FIX drop column image logic is off.
 -(void)dropColumn:(int)column row:(int)row{
     
         int nextRow = [self nextAvailableRow:column];
-        
         for (int j = nextRow+1; j < [_gridArray[column] count]; j++)
         {
             Tile *tile = _gridArray[column][j];
@@ -267,7 +268,11 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
           
             int nextRowNow = [self nextAvailableRow:column];
             // check if spot is open below. then move
+            // wrap a delay here???
+            // [self scheduleBlock:^(CCTimer *timer){ // FIX
+    
             [self moveTile:tile newX:column newY:nextRowNow delay:DROP_DELAY]; // this assumes nothing is at the moved spot
+
             _gridArray[column][j] = _noTile;
     
             
@@ -339,11 +344,13 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 // popping is happening before the Drop! ** FIX
 - (void)removeTile:(Tile *)tile {
     _gridArray[tile.column][tile.row] = _noTile;
-    CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
-    explosion.autoRemoveOnFinish = TRUE;
-    explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
-    [tile.parent addChild:explosion];
-    [tile removeFromParent];
+    [self scheduleBlock:^(CCTimer *timer){
+        CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
+        explosion.autoRemoveOnFinish = TRUE;
+        explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
+        [tile.parent addChild:explosion];
+        [tile removeFromParent];
+    } delay:UPDATE_DELAY];
     
 }
 
