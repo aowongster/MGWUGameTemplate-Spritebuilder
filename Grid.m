@@ -145,7 +145,7 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
             [self scheduleBlock:^(CCTimer *timer){
                 [self countNeighbors];
                 [self updateTiles];
-            } delay: UPDATE_DELAY];
+            } delay: _numBreaks * UPDATE_DELAY];
             **/
             
             /**
@@ -219,6 +219,7 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
         //[self playSound:@"drop.wav"]; // only if something is above it
     }
     if(_brokeTile){
+        _numBreaks++;
         [self playSound:@"break.wav"];
     }
     
@@ -281,7 +282,7 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
                 CGPoint newPosition = [self positionForColumn:column row:nextRowNow];
                 CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:ANIMATION_DELAY position:newPosition];
                 [tile runAction:moveTo];
-            }delay: UPDATE_DELAY];
+            }delay: UPDATE_DELAY + UPDATE_DELAY*_numBreaks];
             
             
     
@@ -361,7 +362,7 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
         explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
         [tile.parent addChild:explosion];
         [tile removeFromParent];
-    } delay:UPDATE_DELAY];
+    } delay:UPDATE_DELAY + UPDATE_DELAY*_numBreaks];
     
 }
 
