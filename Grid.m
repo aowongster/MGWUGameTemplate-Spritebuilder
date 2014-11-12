@@ -164,51 +164,39 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
             
             if(currTile.remove){
                 //label column to drop
-                // [myIntegers addObject:[NSNumber numberWithInteger:i]];
-                // iterate and pull [[myIntegers objectAtIndex:3] integerValue]
-                [_dropColumns addObject:[NSNumber numberWithInteger:currTile.column]];
+                // sparse filling
+                //_dropColumns[currTile.column] = [NSNumber numberWithInteger:currTile.column]; // more efficient?
+                //[_dropColumns addObject:[NSNumber numberWithInteger:currTile.column]];
+                [_dropColumns insertObject:[NSNumber numberWithInteger:currTile.column] atIndex:0];
+                NSLog(@"adding drop column %ld", currTile.column);
                 [self removeTile:currTile];
                 _brokeTile = YES;
-                
-                
+                   
             }
-            
-            // potentially blowup marked tiles here
-            
-            
-            // flagging 2 would be 3?
-            // have an array... blow up all neighbors
-            /**
-             if([currTile.neighborArray count] >= 2)
-             {
-             // blow them up .. how do i...
-             // NSLog(@"neighbors: %ld",[currTile.neighborArray count]);
-             // what if two blow up at the same time?
-             [self removeTile:currTile];
-             [self playSound:@"break.wav"];
-             
-             [self dropColumn:i row:j+1];
-             // _gridArray[i][j] = _noTile;
-             //2. recursively destroy adjacent 3
-             [self removeNeighbors:currTile];
-             }
-             **/
         }
         
     }
     // run a sweeping mass kill all the same time instead of in the loops?
-    // redraw game state?
-    // drop columns here... FIX
     BOOL columnDropped = NO;
+    //NSLog(@"size of dropcolumns: %d", [_dropColumns count]);
+    NSMutableArray *discardColumns = [NSMutableArray array];
+    NSNumber *column;
+    for(column in _dropColumns){
+        columnDropped = YES;
+        [discardColumns addObject:column];
+        [self dropColumn:(int)[column integerValue]];
+    }
+    [_dropColumns removeObjectsInArray:discardColumns];
+    /**
     for (int i = 0; i< [_dropColumns count]; i++){
         columnDropped = YES;
-        // drop em like they are hot
-        // iterate and pull [[myIntegers objectAtIndex:3] integerValue]
-        // really helps to know the row.. if its in the middle.
-        [self dropColumn:[[_dropColumns objectAtIndex:i] integerValue]];
-        [_dropColumns removeObjectAtIndex:i];
-        // now i need to update the column..
+        int column = (int)[[_dropColumns objectAtIndex:i] integerValue];
+        NSLog(@"now dropping %d", column);
+        [self dropColumn:column];
+        [_dropColumns removeObjectAtIndex:i]; // unstable!
     }
+    **/
+    
     // play drop sound
     if(columnDropped){
         //[self playSound:@"drop.wav"]; // only if something is above it
@@ -228,7 +216,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     tile.row = newY;
     // _gridArray[oldX][oldY] = _noTile;
     CGPoint newPosition = [self positionForColumn:newX row:newY];
-    NSLog(@"tile: %d %d ,new position %f %f", newX, newY,newPosition.x, newPosition.y);
+    // NSLog(@"tile: %d %d ,new position %f %f", newX, newY,newPosition.x, newPosition.y);
     
     // do calculation for distance on how far to move
     // better heuristic would be by distance! longer distance = more time
@@ -249,14 +237,9 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 -(void)dropColumn:(int)column {
     [self dropColumn:column row:0];
 }
-// logic for column dropping not good
-// bug here FIX
+
 -(void)dropColumn:(int)column row:(int)row{
-    // NSLog(@"drop column %d %d", column, row);
-    // give column, move all tiles down 1 to next row...
-    // is there someting about the timing code that messes thisup?
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        
+    
         int nextRow = [self nextAvailableRow:column];
         
         for (int j = nextRow+1; j < [_gridArray[column] count]; j++)
@@ -279,7 +262,6 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
             
         }
   
-    });
 }
 
 -(void) countNeighbors{
