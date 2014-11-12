@@ -18,6 +18,7 @@
     NSMutableArray *_gridArray;
     NSMutableArray *_dropColumns;
 	NSNull *_noTile;
+    BOOL _brokeTile;
 
 }
 
@@ -149,6 +150,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 -(void) updateTiles{
     // iterate over all tiles and blow up 3 of a kind.
     // better more flexible way to iterate... vs hard code
+    _brokeTile = NO;
     for (int i = 0; i < [_gridArray count]; i++)
     {
         // iterate through all the columns for a given row
@@ -166,6 +168,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
                 // iterate and pull [[myIntegers objectAtIndex:3] integerValue]
                 [_dropColumns addObject:[NSNumber numberWithInteger:currTile.column]];
                 [self removeTile:currTile];
+                _brokeTile = YES;
                 
                 
             }
@@ -208,7 +211,10 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     }
     // play drop sound
     if(columnDropped){
-        // [self playSound:@"drop.wav"];
+        //[self playSound:@"drop.wav"]; // only if something is above it
+    }
+    if(_brokeTile){
+        [self playSound:@"break.wav"];
     }
     
 }
@@ -222,7 +228,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     tile.row = newY;
     // _gridArray[oldX][oldY] = _noTile;
     CGPoint newPosition = [self positionForColumn:newX row:newY];
-    NSLog(@"new position %f %f", newPosition.x, newPosition.y);
+    NSLog(@"tile: %d %d ,new position %f %f", newX, newY,newPosition.x, newPosition.y);
     
     // do calculation for distance on how far to move
     // better heuristic would be by distance! longer distance = more time
@@ -250,12 +256,12 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     // give column, move all tiles down 1 to next row...
     // is there someting about the timing code that messes thisup?
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        for (int j = row; j < [_gridArray[column] count]; j++)
+        
+        int nextRow = [self nextAvailableRow:column];
+        
+        for (int j = nextRow+1; j < [_gridArray[column] count]; j++)
         {
-            // - (void)moveTile:(Tile *)tile newX:(NSInteger)newX newY:(NSInteger)newY {
             Tile *tile = _gridArray[column][j];
-            // check if tile exists
-            // int availableRow = [self nextAvailableRow:Column];
             if([tile isEqual:_noTile])
             {
                 // now we scanning them all
@@ -265,9 +271,9 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
             //tile exists: index is valid and empty)
             // could go out of bounds here
           
-            int nextRow = [self nextAvailableRow:column];
+            int nextRowNow = [self nextAvailableRow:column];
             // check if spot is open below. then move
-            [self moveTile:tile newX:column newY:nextRow delay:DROP_DELAY]; // this assumes nothing is at the moved spot
+            [self moveTile:tile newX:column newY:nextRowNow delay:DROP_DELAY]; // this assumes nothing is at the moved spot
             _gridArray[column][j] = _noTile;
     
             
