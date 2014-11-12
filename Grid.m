@@ -19,6 +19,7 @@
 	NSNull *_noTile;
     BOOL _brokeTile;
     int _numBreaks;
+    dispatch_queue_t _queue;
 
 }
 
@@ -37,6 +38,8 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     
     _noTile = [NSNull null];
     _dropColumns = [NSMutableArray array]; // [myIntegers addObject:[NSNumber numberWithInteger:i]];
+    
+    _queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 	
     // draws brown squares
     [self setupBackground];
@@ -135,12 +138,19 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
         _brokeTile = NO;
         do{
             
-            
+            /**
             [self scheduleBlock:^(CCTimer *timer){
                 [self countNeighbors];
                 [self updateTiles];
             } delay: UPDATE_DELAY];
-            
+            **/
+            dispatch_sync(_queue, ^{
+                [self scheduleBlock:^(CCTimer *timer){
+                [self countNeighbors];
+                [self updateTiles];
+                    
+                    } delay: UPDATE_DELAY];
+            });
             /**
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                 [self countNeighbors];
