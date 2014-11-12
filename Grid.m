@@ -134,11 +134,19 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
         _numBreaks = 0;
         _brokeTile = NO;
         do{
+            
+            
+            [self scheduleBlock:^(CCTimer *timer){
+                [self countNeighbors];
+                [self updateTiles];
+            } delay: UPDATE_DELAY];
+            
+            /**
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                 [self countNeighbors];
-                // continuously update while there are changes
                 [self updateTiles];
             });
+             **/
             
         }while(_brokeTile);
       
@@ -153,6 +161,8 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     // iterate over all tiles and blow up 3 of a kind.
     // better more flexible way to iterate... vs hard code
     _brokeTile = NO;
+ 
+        
     for (int i = 0; i < [_gridArray count]; i++)
     {
         // iterate through all the columns for a given row
@@ -165,12 +175,10 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
             }
             
             if(currTile.remove){
-                //label column to drop
-                // sparse filling
-                //_dropColumns[currTile.column] = [NSNumber numberWithInteger:currTile.column]; // more efficient?
-                //[_dropColumns addObject:[NSNumber numberWithInteger:currTile.column]];
                 [_dropColumns insertObject:[NSNumber numberWithInteger:currTile.column] atIndex:0];
                 NSLog(@"adding drop column %ld", currTile.column);
+                
+                // have a delay before removing?
                 [self removeTile:currTile];
                 _brokeTile = YES;
                 
@@ -178,6 +186,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
         }
         
     }
+    
     // run a sweeping mass kill all the same time instead of in the loops?
     BOOL columnDropped = NO;
     //NSLog(@"size of dropcolumns: %d", [_dropColumns count]);
@@ -189,17 +198,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
         [self dropColumn:(int)[column integerValue]];
     }
     [_dropColumns removeObjectsInArray:discardColumns];
-    /**
-    for (int i = 0; i< [_dropColumns count]; i++){
-        columnDropped = YES;
-        int column = (int)[[_dropColumns objectAtIndex:i] integerValue];
-        NSLog(@"now dropping %d", column);
-        [self dropColumn:column];
-        [_dropColumns removeObjectAtIndex:i]; // unstable!
-    }
-    **/
-    
-    // play drop sound
+ 
     if(columnDropped){
         //[self playSound:@"drop.wav"]; // only if something is above it
     }
@@ -304,10 +303,7 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
                         }
                         if (currTile.filename == neighbor.filename)
                         {
-                            // [nsMutArray insertObject:label atIndex:0];
-                            // [currTile.neighborArray insertObject:neighbor atIndex:currTile.sameNeighbors]; // keeps adding to front
                             currTile.neighborArray[currTile.sameNeighbors] = neighbor;
-                            //NSLog(@"neighbor obj idx add count: %d", currTile.sameNeighbors);
                             currTile.sameNeighbors += 1;
                         }
                     }
@@ -326,6 +322,34 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
 }
 
 
+
+
+
+// effect and removal from parent
+// popping is happening before the Drop! ** FIX
+- (void)removeTile:(Tile *)tile {
+    _gridArray[tile.column][tile.row] = _noTile;
+    CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
+    explosion.autoRemoveOnFinish = TRUE;
+    explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
+    [tile.parent addChild:explosion];
+    [tile removeFromParent];
+    
+}
+
+// give tile remove its neighbors
+-(void) removeNeighbors:(Tile*)tile{
+    for(int i =0; i< [tile.neighborArray count];i++)
+    {
+        // delete all neighbors + drop their columns
+        Tile* neighborTile = tile.neighborArray[i];
+        if(![neighborTile isEqual:_noTile])
+        {
+            neighborTile.remove = YES;
+        }
+        
+    }
+}
 
 -(int)columnForTouchPosition:(CGPoint)touchPosition{
     return touchPosition.x / ( _columnWidth + _tileMarginHorizontal);
@@ -351,40 +375,6 @@ static const CGFloat DROP_DELAY = ANIMATION_DELAY/3.0f;
     NSInteger x = _tileMarginHorizontal + column * (_tileMarginHorizontal + _columnWidth);
     NSInteger y = (_tileMarginVertical) + row * (_tileMarginVertical + _columnHeight);
     return CGPointMake(x,y);
-}
-
-
-
-// effect and removal from parent
-// popping is happening before the Drop! ** FIX
-- (void)removeTile:(Tile *)tile {
-    _gridArray[tile.column][tile.row] = _noTile;
-    CCParticleSystem *explosion = (CCParticleSystem *)[CCBReader load:@"TileBreak"];
-    explosion.autoRemoveOnFinish = TRUE;
-    explosion.position = CGPointMake(tile.position.x + _columnWidth/2, tile.position.y + _columnHeight/2);
-    [tile.parent addChild:explosion];
-    [tile removeFromParent];
-    
-}
-
-// give tile remove its neighbors
--(void) removeNeighbors:(Tile*)tile{
-    for(int i =0; i< [tile.neighborArray count];i++)
-    {
-        // delete all neighbors + drop their columns
-        Tile* neighborTile = tile.neighborArray[i];
-        if(![neighborTile isEqual:_noTile])
-        {
-            
-            //[self removeTile:neighborTile];
-            neighborTile.remove = YES;
-            //[self dropColumn:neighborTile.column row:neighborTile.row+1];
-            
-            // need to remove their grid position as well
-            // comboes are not workin
-        }
-        
-    }
 }
 
 -(void)playSound:(NSString*)sound{
