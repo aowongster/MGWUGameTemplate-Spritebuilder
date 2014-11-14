@@ -118,9 +118,17 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
              **/
             NSLog(@"finished update");
         }while(_brokeTile);
-      
-        // TILE FALLS BEFORE COLUMN CAN BE DROPPED
-   
+    }
+    
+    // check gameOver and freeze game
+    if([self isGameOver]){
+        // pause
+        self.gameOver = YES;
+        /**
+        [[CCDirector sharedDirector] pause];
+        [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
+        **/
+         // show button
     }
 }
 
@@ -338,9 +346,8 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     // shift everything up
     for (int i = 0; i < NUM_COLUMNS; i++) {
         for (int j = NUM_ROWS-2; j >= 0; j--) {
-            // Tile *tile = _gridArray[i][j];
-            // NSLog(@"i: %d j: %d", i, j);
             
+            // Only adds bottoms on init. doesnt shift anything else
             // create a new tile on bottom row j == 0
             if(!j){
                 // create new tile here
@@ -475,4 +482,12 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     }
 }
 
+-(BOOL)isGameOver{
+    // checking top row for available slots
+    for (int i = 0; i < NUM_COLUMNS; i++) {
+        if([_gridArray[i][NUM_ROWS-1] isEqual:_noTile])
+            return NO;
+    }
+    return YES;
+}
 @end

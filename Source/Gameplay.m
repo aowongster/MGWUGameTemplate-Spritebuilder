@@ -32,7 +32,7 @@
     // update the texture of _nextTile if it changes!
     [_nextTile setTexture:[[CCSprite spriteWithImageNamed:_grid.nextTile.filename]texture]];
     
-    if(_gameover){
+    if(_grid.gameOver){
         _gameoverButton.visible=YES;
     }
     

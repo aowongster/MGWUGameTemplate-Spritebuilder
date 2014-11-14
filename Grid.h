@@ -15,5 +15,6 @@
 }
 
 @property (nonatomic, strong) Tile* nextTile;
+@property (nonatomic, assign) BOOL gameOver;
 
 @end
