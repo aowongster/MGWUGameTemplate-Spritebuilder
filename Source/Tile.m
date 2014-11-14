@@ -20,19 +20,28 @@ static const int DIFFICULTY = 2;
 
 // this needs to be rewritten.
 
-- (instancetype)initTile{
+- (instancetype)initTile:(int)column row:(int)row{
+    
     self = [super init];
     if (self) {
-        self.remove = NO; // active for now at least
-        [self randomProperties];
+        
+        self.column = column;
+        self.row = row;
+        self.remove = NO;
         self.neighborArray = [[NSMutableArray alloc] init];
-        self.spriteFrame = [CCSpriteFrame frameWithImageNamed:self.filename];
+        [self randomProperties];
         [self setScale:spriteScale];
         [self setAnchorPoint:ccp(0,0)];
+        self.spriteFrame = [CCSpriteFrame frameWithImageNamed:self.filename];
     }
     
     return self;
 }
+
+-(instancetype)initTile{
+    return [self initTile:0 row:0];
+}
+
 -(void) randomProperties {
     // init with random image?
     _tileNames = [NSArray arrayWithObjects:
@@ -46,8 +55,6 @@ static const int DIFFICULTY = 2;
     
     self.tileType = arc4random_uniform((int)[_tileNames count] -DIFFICULTY);
     self.filename = _tileNames[self.tileType];
-    // [self setTexture:[[CCSprite spriteWithImageNamed:self.filename]texture]];
-    
 }
 
 
