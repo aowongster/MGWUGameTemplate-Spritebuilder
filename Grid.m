@@ -60,52 +60,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     
 }
 
-// instantiates _gridArray[column][row]
--(void) nullGrid{
-    _gridArray = [NSMutableArray array];
-    for (int i = 0; i < NUM_COLUMNS; i++) {
-		_gridArray[i] = [NSMutableArray array];
-		for (int j = 0; j < NUM_ROWS; j++) {
-			_gridArray[i][j] = _noTile;
-		}
-	}
-}
 
-- (void)setupBackground
-{
-    _columnWidth = TILE_SIZE;
-    _columnHeight = TILE_SIZE;
-    
-    // this hotfix is needed because of issue #638 in Cocos2D 3.1 / SB 1.1 (https://github.com/spritebuilder/SpriteBuilder/issues/638)
-    
-    // [tile performSelector:@selector(cleanup)];
-	// calculate the margin by subtracting the tile sizes from the grid size
-	_tileMarginHorizontal = (self.contentSize.width - (NUM_COLUMNS * TILE_SIZE)) / (NUM_COLUMNS+1);
-	_tileMarginVertical = (self.contentSize.height - (NUM_ROWS * TILE_SIZE)) / (NUM_ROWS+1);
-	// set up initial x and y positions
-	float x = _tileMarginHorizontal;
-	float y = _tileMarginVertical;
-    //NSLog(@"content size: %f %f", self.contentSize.height, self.contentSize.height);
-    //NSLog(@"%f %f", x, y);
-    
-    // let to right, bottom to top
-	for (int i = 0; i < NUM_ROWS; i++) {
-		// iterate through each row
-		x = _tileMarginHorizontal;
-		for (int j = 0; j < NUM_COLUMNS; j++) {
-			//  iterate through each column in the current row
-            // add grid
-            CCNodeColor *backgroundTile = [CCNodeColor nodeWithColor:[CCColor brownColor]];
-			backgroundTile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
-			backgroundTile.position = ccp(x, y);
-			[self addChild:backgroundTile]; // color node
-            
-            // my adding is a bit funky
-			x+= _columnWidth + _tileMarginHorizontal;
-		}
-		y += _columnHeight + _tileMarginVertical;
-	}
-}
 
 -(void) touchBegan:(UITouch *)touch withEvent:(UIEvent *)event {
     
@@ -120,12 +75,10 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
         // NSLog(@"space available, moving");
         // NSLog(@"spot open in column %d", touchColumn);
  
+        
+        // and its back!
         //Tile *tile = [self newTile:touchColumn row:NUM_ROWS];
-        Tile *tile = [[Tile alloc] initTile:touchColumn row:NUM_ROWS];
-        tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
-        tile.position = [self positionForColumn:touchColumn row:NUM_ROWS];
-        [self addChild:tile];
-        [self.nextTile randomProperties];
+        Tile *tile = [self getNextTile:touchColumn row:NUM_ROWS];
         [self moveTile:tile newX:touchColumn newY:availableRow];
         
         
@@ -385,13 +338,17 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     // shift everything up
     for (int i = 0; i < NUM_COLUMNS; i++) {
         for (int j = NUM_ROWS-2; j >= 0; j--) {
-            Tile *tile = _gridArray[i][j];
+            // Tile *tile = _gridArray[i][j];
             // NSLog(@"i: %d j: %d", i, j);
             
             // create a new tile on bottom row j == 0
             if(!j){
                 // create new tile here
-                _gridArray[i][j] = [self newTile:i row:j];
+                Tile *tile = [[Tile alloc]initTile:i row:j];
+                tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
+                tile.position = [self positionForColumn:i row:j];
+                [self addChild:tile];
+                _gridArray[i][j] = tile;
                 NSLog(@"i: %d j: %d", i, j);
                 
             }
@@ -454,19 +411,68 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
 
 // creates a new tile  ( when is this used? )
 // is this initializing a class?????
--(Tile*)newTile:(int)column row:(int)row{
+-(Tile*)getNextTile:(int)column row:(int)row{
     Tile *tile = [[Tile alloc] initTile];
     tile.filename = self.nextTile.filename;
     tile.tileType = self.nextTile.tileType;
+    [tile setTexture:[[CCSprite spriteWithImageNamed:tile.filename]texture]];
     tile.column = column;
     tile.row = row;
-    [tile setTexture:[[CCSprite spriteWithImageNamed:tile.filename]texture]];
     tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
     tile.position = [self positionForColumn:column row:row];
     [self addChild:tile];
     [self.nextTile randomProperties];
     
     return tile;
+}
+
+
+// instantiates _gridArray[column][row]
+-(void) nullGrid{
+    _gridArray = [NSMutableArray array];
+    for (int i = 0; i < NUM_COLUMNS; i++) {
+        _gridArray[i] = [NSMutableArray array];
+        for (int j = 0; j < NUM_ROWS; j++) {
+            _gridArray[i][j] = _noTile;
+        }
+    }
+}
+
+
+- (void)setupBackground
+{
+    _columnWidth = TILE_SIZE;
+    _columnHeight = TILE_SIZE;
+    
+    // this hotfix is needed because of issue #638 in Cocos2D 3.1 / SB 1.1 (https://github.com/spritebuilder/SpriteBuilder/issues/638)
+    
+    // [tile performSelector:@selector(cleanup)];
+    // calculate the margin by subtracting the tile sizes from the grid size
+    _tileMarginHorizontal = (self.contentSize.width - (NUM_COLUMNS * TILE_SIZE)) / (NUM_COLUMNS+1);
+    _tileMarginVertical = (self.contentSize.height - (NUM_ROWS * TILE_SIZE)) / (NUM_ROWS+1);
+    // set up initial x and y positions
+    float x = _tileMarginHorizontal;
+    float y = _tileMarginVertical;
+    //NSLog(@"content size: %f %f", self.contentSize.height, self.contentSize.height);
+    //NSLog(@"%f %f", x, y);
+    
+    // let to right, bottom to top
+    for (int i = 0; i < NUM_ROWS; i++) {
+        // iterate through each row
+        x = _tileMarginHorizontal;
+        for (int j = 0; j < NUM_COLUMNS; j++) {
+            //  iterate through each column in the current row
+            // add grid
+            CCNodeColor *backgroundTile = [CCNodeColor nodeWithColor:[CCColor brownColor]];
+            backgroundTile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
+            backgroundTile.position = ccp(x, y);
+            [self addChild:backgroundTile]; // color node
+            
+            // my adding is a bit funky
+            x+= _columnWidth + _tileMarginHorizontal;
+        }
+        y += _columnHeight + _tileMarginVertical;
+    }
 }
 
 @end
