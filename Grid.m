@@ -30,7 +30,6 @@ static const NSInteger TILE_SIZE = 45;
 static const CGFloat ANIMATION_DELAY = 0.25f;
 static const CGFloat SOUND_DELAY = ANIMATION_DELAY + 0.1f;
 static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
-static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
 
 // x 320 x 554
 
@@ -114,25 +113,11 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
         // NSLog(@"space available, moving");
         // NSLog(@"spot open in column %d", touchColumn);
  
-        // how about copy over the properties or use a cleaner methods
-             // copy properties of self.nextTile;
-        Tile *tile = [[Tile alloc] initTile];
-        tile.filename = self.nextTile.filename;
-        tile.tileType = self.nextTile.tileType;
-        //tile.row = NUM_ROWS;
-        [tile setTexture:[[CCSprite spriteWithImageNamed:tile.filename]texture]];
-        
-        // new nextTile
-        [self.nextTile randomProperties];
-        
-        // starting position of tile
-        tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
-        tile.position = [self positionForColumn:touchColumn row:NUM_ROWS];
-        [self addChild:tile];
-        
+        Tile *tile = [self newTile:touchColumn row:NUM_ROWS];
         [self moveTile:tile newX:touchColumn newY:availableRow];
-        [self playSound:@"drop.wav"];
         
+        [self playSound:@"drop.wav"];
+        [self.nextTile randomProperties];
         // maybe put this in update loop !! hmmmm
         _numBreaks = 0;
         _brokeTile = NO;
@@ -380,6 +365,27 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
     }
 }
 
+-(void) addBottomRow{
+    // add a row to bottom of grid
+    
+    // shift everything up
+    for (int i = 0; i < NUM_COLUMNS; i++) {
+        for (int j = NUM_ROWS-2; j >= 0; j--) {
+            Tile *tile = _gridArray[i][j];
+            
+            if(!j){
+                // create new tile here
+            }
+            if(![tile isEqual:_noTile]){
+                _gridArray[i][j+1] = tile;
+                _gridArray[i][j] = _noTile;
+            }
+            
+        }
+    }
+    
+}
+
 -(int)columnForTouchPosition:(CGPoint)touchPosition{
     return touchPosition.x / ( _columnWidth + _tileMarginHorizontal);
 }
@@ -425,11 +431,14 @@ static const CGFloat DROP_DELAY = UPDATE_DELAY+ 0.1f;
 }
 
 // creates a new tile  ( when is this used? )
--(Tile*)newTile{
+-(Tile*)newTile:(int)column row:(int)row{
     Tile *tile = [[Tile alloc] initTile];
+    tile.filename = self.nextTile.filename;
+    tile.tileType = self.nextTile.tileType;
+    [tile setTexture:[[CCSprite spriteWithImageNamed:tile.filename]texture]];
     tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
-    // tile.position = [self positionForColumn:touchColumn row:availableRow];
-    [self addChild:tile]; // i guess so we can see it
+    tile.position = [self positionForColumn:column row:row];
+    [self addChild:tile];
     return tile;
 }
 
