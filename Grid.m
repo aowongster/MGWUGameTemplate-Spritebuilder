@@ -33,6 +33,12 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
 
 // x 320 x 554
 
+- (void)onEnter {
+    [super onEnter];
+    
+    self.userInteractionEnabled = TRUE;
+}
+
 - (void)didLoadFromCCB {
     
     _noTile = [NSNull null];
@@ -43,9 +49,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     // draws brown squares
     [self setupBackground];
 	[self nullGrid];
-    
-    self.userInteractionEnabled = TRUE;
-    
+        
     OALSimpleAudio *audio = [OALSimpleAudio sharedInstance];
     [audio preloadEffect:@"drop.wav"];
     
