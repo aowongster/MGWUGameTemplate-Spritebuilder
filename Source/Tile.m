@@ -21,20 +21,14 @@ static const int DIFFICULTY = 2;
 // this needs to be rewritten.
 
 - (instancetype)initTile{
-    [self randomProperties];
-    self.neighborArray = [[NSMutableArray alloc] init];
-    self = [super initWithImageNamed:self.filename];
-    
-    // not sure why image has to be setup out here
-    // self = [super init];
+    self = [super init];
     if (self) {
         self.remove = NO; // active for now at least
-        // move this out?
-        
+        [self randomProperties];
+        self.neighborArray = [[NSMutableArray alloc] init];
+        self.spriteFrame = [CCSpriteFrame frameWithImageNamed:self.filename];
         [self setScale:spriteScale];
         [self setAnchorPoint:ccp(0,0)];
-        // [self randomProperties];
-        
     }
     
     return self;
