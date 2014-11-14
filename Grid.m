@@ -50,6 +50,9 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     [audio preloadEffect:@"drop.wav"];
     
     self.nextTile = [[Tile alloc] initTile];
+    [self addBottomRow];
+    
+    NSLog(@"loading grid CCB");
     
 }
 
@@ -117,13 +120,13 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
         [self moveTile:tile newX:touchColumn newY:availableRow];
         
         [self playSound:@"drop.wav"];
-        [self.nextTile randomProperties];
+        
         // maybe put this in update loop !! hmmmm
         _numBreaks = 0;
         _brokeTile = NO;
         do{
             // instant pop before drop animation completes
-            [self countNeighbors];
+        
             [self updateTiles];
             
             /**
@@ -162,6 +165,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
 -(void) updateTiles{
     // iterate over all tiles and blow up 3 of a kind.
     // better more flexible way to iterate... vs hard code
+    [self countNeighbors];
     _brokeTile = NO;
     NSLog(@"starting update");
     for (int i = 0; i < [_gridArray count]; i++)
@@ -239,6 +243,9 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
 -(void)dropColumn:(int)column row:(int)row{
     
         int nextRow = [self nextAvailableRow:column];
+        if(nextRow ==-1){
+            return;
+        }
         for (int j = nextRow+1; j < NUM_ROWS; j++)
         {
             Tile *tile = _gridArray[column][j];
@@ -252,12 +259,9 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
             // could go out of bounds here
           
             int nextRowNow = [self nextAvailableRow:column];
-            // check if spot is open below. then move
-            // wrap a delay here???
-            // [self scheduleBlock:^(CCTimer *timer){ // FIX
-    
-            //[self moveTile:tile newX:column newY:nextRowNow delay:DROP_DELAY];
-            // shouldnt be updating in the middle of the loop
+            
+            // not checking valid index?
+      
             _gridArray[column][nextRowNow] = tile;
             tile.column = column;
             tile.row = nextRowNow;
@@ -361,28 +365,35 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
         {
             neighborTile.remove = YES;
         }
-        
     }
 }
 
 -(void) addBottomRow{
-    // add a row to bottom of grid
+    // add a row to bottom of grid // incorrectly writing
     
     // shift everything up
     for (int i = 0; i < NUM_COLUMNS; i++) {
         for (int j = NUM_ROWS-2; j >= 0; j--) {
             Tile *tile = _gridArray[i][j];
+            // NSLog(@"i: %d j: %d", i, j);
             
+            // create a new tile on bottom row j == 0
             if(!j){
                 // create new tile here
+                _gridArray[i][j] = [self newTile:i row:j];
+                NSLog(@"i: %d j: %d", i, j);
+                
             }
+            /**
             if(![tile isEqual:_noTile]){
                 _gridArray[i][j+1] = tile;
                 _gridArray[i][j] = _noTile;
             }
+            **/
             
         }
     }
+    [self updateTiles];
     
 }
 
@@ -431,14 +442,19 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
 }
 
 // creates a new tile  ( when is this used? )
+// is this initializing a class?????
 -(Tile*)newTile:(int)column row:(int)row{
     Tile *tile = [[Tile alloc] initTile];
     tile.filename = self.nextTile.filename;
     tile.tileType = self.nextTile.tileType;
+    tile.column = column;
+    tile.row = row;
     [tile setTexture:[[CCSprite spriteWithImageNamed:tile.filename]texture]];
     tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
     tile.position = [self positionForColumn:column row:row];
     [self addChild:tile];
+    [self.nextTile randomProperties];
+    
     return tile;
 }
 
