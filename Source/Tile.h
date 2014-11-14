@@ -22,6 +22,7 @@
 @property (nonatomic) NSMutableArray* neighborArray;
 
 - (id)initTile;
+- (id)initTile:(int)column row:(int)row;
 -(void)randomProperties;
 
 

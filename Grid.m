@@ -120,8 +120,15 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
         // NSLog(@"space available, moving");
         // NSLog(@"spot open in column %d", touchColumn);
  
-        Tile *tile = [self newTile:touchColumn row:NUM_ROWS];
+        //Tile *tile = [self newTile:touchColumn row:NUM_ROWS];
+        Tile *tile = [[Tile alloc] initTile:touchColumn row:NUM_ROWS];
+        tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
+        tile.position = [self positionForColumn:touchColumn row:NUM_ROWS];
+        [self addChild:tile];
+        [self.nextTile randomProperties];
         [self moveTile:tile newX:touchColumn newY:availableRow];
+        
+        
         
         [self playSound:@"drop.wav"];
         
