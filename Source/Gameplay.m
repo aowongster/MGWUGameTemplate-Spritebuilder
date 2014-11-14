@@ -14,11 +14,14 @@
 @implementation Gameplay {
     Grid *_grid;
     Tile *_nextTile;
+    CCButton *_gameoverButton;
+    BOOL *_gameover;
 }
 
 -(void)didLoadFromCCB{
  
     // how come I dont see this tile?
+    _gameover=FALSE;
     _nextTile = _grid.nextTile;
     _nextTile.position = ccp(25, 500);
     [self addChild:_nextTile];
@@ -28,9 +31,23 @@
 - (void)update:(CCTime)delta {
     // update the texture of _nextTile if it changes!
     [_nextTile setTexture:[[CCSprite spriteWithImageNamed:_grid.nextTile.filename]texture]];
-    // [yourSprite setTexture:[[CCSprite spriteWithFile:@"yourImage.png"]texture]];
     
-    // i have access to the grid, i can try updating here...
+    if(_gameover){
+        _gameoverButton.visible=YES;
+    }
+    
+    /**
+     if(_paused)
+     {
+     [[CCDirector sharedDirector] pause];
+     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
+     }
+     else
+     {
+     [[CCDirector sharedDirector] resume];
+     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
+     }
+     **/
 }
 
 // wipes the grid
