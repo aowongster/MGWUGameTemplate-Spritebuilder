@@ -16,7 +16,7 @@
     
 }
 static const CGFloat  spriteScale = .5f;
-static const int DIFFICULTY = 0;
+static const int DIFFICULTY = 4;
 
 // this needs to be rewritten.
 
@@ -52,6 +52,8 @@ static const int DIFFICULTY = 0;
                   @"stones/orange5.png",
                   @"stones/grey18.png",
                   @"stones/green6.png",
+                  @"stones/purple1.png",
+                  @"stones/pink8.png",
                   nil];
     
     self.tileType = arc4random_uniform((int)[_tileNames count] -DIFFICULTY);
