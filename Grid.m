@@ -309,7 +309,13 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
             {
                 // mark neighbors here // I think this works with 4!
                 currTile.remove = YES;
+                // for (id myArrayElement in myArray)
+                for (Tile *neighborTile in currTile.neighborArray){
+                    [self removeNeighbors:neighborTile];
+                }
                 [self removeNeighbors:currTile];
+                // and remove neighbors of neighbors!
+                // XXX
             }
             
         }
