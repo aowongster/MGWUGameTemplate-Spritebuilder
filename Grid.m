@@ -61,8 +61,9 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     self.nextTile = [[Tile alloc] initTile];
     
     // fix addBottomRow
-    [self addBottomRow];
-    [self addBottomRow];
+    for( int i = 0; i <= 3; i++){
+        [self addBottomRow];
+    }
     // [self updateTiles]; // bug in update tiles
     
     

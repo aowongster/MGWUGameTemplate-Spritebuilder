@@ -16,7 +16,7 @@
     
 }
 static const CGFloat  spriteScale = .5f;
-static const int DIFFICULTY = 4;
+static const int DIFFICULTY = 0;
 
 // this needs to be rewritten.
 
@@ -45,15 +45,14 @@ static const int DIFFICULTY = 4;
 -(void) randomProperties {
     // init with random image?
     _tileNames = [NSArray arrayWithObjects:
-                  @"stones/blue1.png",
-                  @"stones/brown14.png",
-                  @"stones/red10.png",
-                  @"stones/grey9.png",
-                  @"stones/orange5.png",
-                  @"stones/grey18.png",
+                  @"stones/blue6.png",
+                  @"stones/brown6.png",
+                  @"stones/red6.png",
+                  @"stones/grey6.png",
+                  @"stones/orange6.png",
+                  @"stones/grey6.png",
                   @"stones/green6.png",
-                  @"stones/purple1.png",
-                  @"stones/pink8.png",
+                  @"stones/pink6.png",
                   nil];
     
     self.tileType = arc4random_uniform((int)[_tileNames count] -DIFFICULTY);
