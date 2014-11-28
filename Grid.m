@@ -54,7 +54,11 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     [audio preloadEffect:@"drop.wav"];
     
     self.nextTile = [[Tile alloc] initTile];
+    
+    // fix addBottomRow
     [self addBottomRow];
+    [self addBottomRow]; // not drawn
+    // [self updateTiles]; // bug in update tiles
     
     NSLog(@"loading grid CCB");
     
@@ -151,6 +155,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
                 continue;
             }
             
+            // add column to drop columns array
             if(currTile.remove){
                 [_dropColumns insertObject:[NSNumber numberWithInteger:currTile.column] atIndex:0];
                 NSLog(@"adding drop column %ld", currTile.column);
@@ -179,6 +184,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     if(columnDropped){
         //[self playSound:@"drop.wav"]; // only if something is above it
     }
+    
     if(_brokeTile){
         _numBreaks++;
         [self playSound:@"break.wav"];
@@ -297,6 +303,8 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
                 }
             }
             // out of the check
+            
+            // bug with neighbor removal...
             if(currTile.sameNeighbors >= 2)
             {
                 // mark neighbors here // I think this works with 4!
@@ -345,31 +353,50 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     
     // shift everything up
     for (int i = 0; i < NUM_COLUMNS; i++) {
-        for (int j = NUM_ROWS-2; j >= 0; j--) {
+        for (int j = NUM_ROWS-1; j >= 0; j--) {
             
-            // Only adds bottoms on init. doesnt shift anything else
-            // create a new tile on bottom row j == 0
-            if(!j){
-                // create new tile here
-                Tile *tile = [[Tile alloc]initTile:i row:j];
-                tile.contentSize = CGSizeMake(_columnWidth, _columnHeight);
-                tile.position = [self positionForColumn:i row:j];
-                [self addChild:tile];
-                _gridArray[i][j] = tile;
-                NSLog(@"i: %d j: %d", i, j);
+            Tile *currTile = _gridArray[i][j];
+            // bad conditioning here
+            if([currTile isEqual:_noTile] && j){
+                continue;
+            }
+            
+            // we have a tile, thats not bottom row
+            if(![currTile isEqual:_noTile]) {
+                // there's a tile and we need to move it up
+                if(j == NUM_ROWS - 1){
+                    // not safe to move up and just delete
+                    // does this update the grid as well?
+                }
+                else{
+                    // move up
+                    currTile.position = [self positionForColumn:i row:j+1];
+                    // [self moveTile:currTile newX:i newY:j+1];
+                    _gridArray[i][j+1] = currTile; // want the value
+                    _gridArray[i][j] = _noTile;
+                    // need to call move function here.to have tiles drawn
+                    
+                    //
+                }
+                currTile = (Tile*) _noTile;
                 
             }
-            /**
-            if(![tile isEqual:_noTile]){
-                _gridArray[i][j+1] = tile;
-                _gridArray[i][j] = _noTile;
+            
+            // im not creating these tiles correctly
+            if(!j){
+                // create new tile here
+                // put get next tile here..
+                Tile *tile = [self getNextTile:i row:j];
+                _gridArray[i][j] = tile;
+                
+                
+                NSLog(@"i: %d j: %d", i, j);
+    
             }
-            **/
             
         }
     }
-    [self updateTiles];
-    
+    // [self updateTiles];
 }
 
 -(int)columnForTouchPosition:(CGPoint)touchPosition{
