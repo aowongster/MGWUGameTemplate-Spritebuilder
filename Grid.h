@@ -16,5 +16,6 @@
 
 @property (nonatomic, strong) Tile* nextTile;
 @property (nonatomic, assign) BOOL gameOver;
+@property (nonatomic, assign) long points;
 
 @end

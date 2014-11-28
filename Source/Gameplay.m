@@ -15,6 +15,8 @@
     Grid *_grid;
     Tile *_nextTile;
     CCButton *_gameoverButton;
+    CCLabelTTF  *_scoreLabel;
+    CCLabelTTF  *_highscoreLabel;
     BOOL *_gameover;
 }
 
@@ -23,7 +25,7 @@
     // how come I dont see this tile?
     _gameover=FALSE;
     _nextTile = _grid.nextTile;
-    _nextTile.position = ccp(25, 500);
+    _nextTile.position = ccp(5, 450);
     [self addChild:_nextTile];
 }
 
@@ -48,6 +50,8 @@
      [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
      }
      **/
+    
+    _scoreLabel.string = [NSString stringWithFormat:@"%ld", (long)_grid.points];
 }
 
 // wipes the grid

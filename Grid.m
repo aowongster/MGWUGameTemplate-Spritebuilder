@@ -26,6 +26,7 @@
 static const NSInteger NUM_ROWS = 9;
 static const NSInteger NUM_COLUMNS = 6;
 static const NSInteger TILE_SIZE = 45;
+static const NSInteger DROP_PTS = 10;
 
 static const CGFloat ANIMATION_DELAY = 0.25f;
 static const CGFloat SOUND_DELAY = ANIMATION_DELAY + 0.1f;
@@ -39,12 +40,15 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     self.userInteractionEnabled = TRUE;
 }
 
+// why not use init function?
 - (void)didLoadFromCCB {
     
     _noTile = [NSNull null];
-    _dropColumns = [NSMutableArray array]; // [myIntegers addObject:[NSNumber numberWithInteger:i]];
+    _dropColumns = [NSMutableArray array];
+    self.points = 0;
+
     
-    _queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    //_queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 	
     // draws brown squares
     [self setupBackground];
@@ -57,10 +61,9 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
     
     // fix addBottomRow
     [self addBottomRow];
-    [self addBottomRow]; // not drawn
+    [self addBottomRow];
     // [self updateTiles]; // bug in update tiles
     
-    NSLog(@"loading grid CCB");
     
 }
 
@@ -133,6 +136,10 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
         [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
         **/
          // show button
+    }
+    // 10 pts for dropping
+    if(!self.gameOver){
+        self.points += DROP_PTS;
     }
 }
 
@@ -362,12 +369,10 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
         for (int j = NUM_ROWS-1; j >= 0; j--) {
             
             Tile *currTile = _gridArray[i][j];
-            // bad conditioning here
             if([currTile isEqual:_noTile] && j){
                 continue;
             }
             
-            // we have a tile, thats not bottom row
             if(![currTile isEqual:_noTile]) {
                 // there's a tile and we need to move it up
                 if(j == NUM_ROWS - 1){
@@ -380,23 +385,15 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
                     // [self moveTile:currTile newX:i newY:j+1];
                     _gridArray[i][j+1] = currTile; // want the value
                     _gridArray[i][j] = _noTile;
-                    // need to call move function here.to have tiles drawn
-                    
-                    //
+      
                 }
-                currTile = (Tile*) _noTile;
-                
+                // currTile = (Tile*) _noTile;
             }
             
-            // im not creating these tiles correctly
+            // on the bottom, j==0, row add tiles
             if(!j){
-                // create new tile here
-                // put get next tile here..
                 Tile *tile = [self getNextTile:i row:j];
-                _gridArray[i][j] = tile;
-                
-                
-                NSLog(@"i: %d j: %d", i, j);
+                _gridArray[i][j] = tile; // should be full
     
             }
             
@@ -421,7 +418,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
             return i;
         }
     }
-    return -1;
+    return -1; //means full
 }
 
 // create a point given column row; did some crazy margin edits to make it fit
