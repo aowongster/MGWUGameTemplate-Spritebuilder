@@ -18,11 +18,17 @@
     CCLabelTTF  *_scoreLabel;
     CCLabelTTF  *_highscoreLabel;
     BOOL *_gameover;
+    NSNumber *_highScore;
 }
 
 -(void)didLoadFromCCB{
  
     // how come I dont see this tile?
+    _highScore = [[NSUserDefaults standardUserDefaults] objectForKey:@"highscore"];
+    if (!_highScore){
+        _highScore=0;
+    }
+    
     _gameover=FALSE;
     _nextTile = _grid.nextTile;
     _nextTile.position = ccp(5, 450);
@@ -50,8 +56,15 @@
      [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
      }
      **/
+    if (_grid.points > [_highScore intValue]) {
+        // new highscore!
+        _highScore = [NSNumber numberWithInt:(int)_grid.points];
+        [[NSUserDefaults standardUserDefaults] setObject:_highScore forKey:@"highscore"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
     
     _scoreLabel.string = [NSString stringWithFormat:@"%ld", (long)_grid.points];
+    _highscoreLabel.string = [NSString stringWithFormat:@"%@", _highScore];
 }
 
 // wipes the grid

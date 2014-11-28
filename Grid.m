@@ -27,6 +27,7 @@ static const NSInteger NUM_ROWS = 9;
 static const NSInteger NUM_COLUMNS = 6;
 static const NSInteger TILE_SIZE = 45;
 static const NSInteger DROP_PTS = 10;
+static const NSInteger REMOVE_PTS = 25;
 
 static const CGFloat ANIMATION_DELAY = 0.25f;
 static const CGFloat SOUND_DELAY = ANIMATION_DELAY + 0.1f;
@@ -136,9 +137,17 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
         [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
         **/
          // show button
+        
+        // lookup and sync highscores
+        
+        // intialize against null
+        
+        
+        
+        // _highscoreLabel.string = [NSString stringWithFormat:@"%@", highScore];
     }
+    else{
     // 10 pts for dropping
-    if(!self.gameOver){
         self.points += DROP_PTS;
     }
 }
@@ -169,6 +178,7 @@ static const CGFloat UPDATE_DELAY = ANIMATION_DELAY + 0.2f;
                 
                 // have a delay before removing?
                 [self removeTile:currTile];
+                self.points += REMOVE_PTS;
                 _brokeTile = YES;
                 
             }
